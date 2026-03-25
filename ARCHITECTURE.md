@@ -113,22 +113,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 ## 3. Identified Architectural Smells
 
-### 3.1 Inline Instantiation in Master Command
-
-**Location**: `master.ts`
-
-**Issue**: Subcommand handlers are instantiated inside the `execute()` method on every invocation rather than at composition time. `getAllowedHosts()` is also called on every command.
-
-**Consequences**:
-- Tight coupling between master command and subcommand implementations
-- Difficult to mock subcommands in tests of master.ts
-- Dependency resolution happens at runtime, not at composition time
-
-**Severity**: Medium
-
----
-
-### 3.2 Collector Logic Lacks Type Safety
+### 3.1 Collector Logic Lacks Type Safety
 
 **Location**: `server_status.ts`, `index.ts`
 
@@ -141,7 +126,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 ---
 
-### 3.3 Mixed Concerns in ServerStatus
+### 3.2 Mixed Concerns in ServerStatus
 
 **Location**: `server_status.ts`
 
@@ -159,7 +144,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 ---
 
-### 3.4 Synchronous Database Operations in Async Context
+### 3.3 Synchronous Database Operations in Async Context
 
 **Location**: `database.ts`
 
@@ -239,6 +224,5 @@ class ComponentIdParser {
 | High | Type-safe collector interface | Type Safety |
 | High | Extract polling to PollService | Separation of Concerns |
 | High | Custom ID builder/parser | Type Safety |
-| Medium | Subcommand factory pattern | Testability |
 | Low | Typed Pterodactyl API response interfaces | Code Organisation |
 | Low | Async database layer | Performance |
