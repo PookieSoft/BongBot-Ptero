@@ -60,7 +60,13 @@ const postDeploymentMessage = async () => {
     if (!('send' in channel && typeof channel.send === 'function')) return;
     try {
         const messages = await channel.messages.fetch({ limit: 100 });
-        const botMessages = messages.filter((msg: Message) => msg.author.id === bot.user!.id);
+        const botMessages = messages.filter((msg: Message) =>
+            msg.author.id === bot.user!.id &&
+            msg.embeds.some(embed =>
+                embed.title?.includes(GITHUB_REPO_NAME) ||
+                embed.description?.includes(GITHUB_REPO_NAME)
+            )
+        );
         botMessages?.forEach((message: Message) => message.delete());
     } catch (err: any) {
         console.warn(`Warning: Could not delete messages. The bot might be missing 'Manage Messages' permissions. Error: ${err.message}`);

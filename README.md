@@ -66,7 +66,7 @@ This Microservice contains the pterodactyl features, used to manage pterodactyl 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DISCORD_API_KEY` | ✅ | Your Discord bot token |
-| `DISCORD_CHANNEL_ID` | ✅ | Default channel ID for info card on bot launch |
+| `DISCORD_CHANNEL_ID` | ❌ | Default channel ID for info card on bot launch |
 | `SERVER_DATABASE` | ✅ | Pterodactyl database file name (default: pterodactyl.db) |
 | `ENCRYPTION_KEY` | ✅ | Hex-encoded encryption key for storing Pterodactyl API keys securely |
 

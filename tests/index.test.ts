@@ -291,8 +291,8 @@ describe('BongBot-Ptero index', () => {
             const Discord = await import('discord.js');
             const mockDeleteFn = jest.fn().mockResolvedValue(undefined);
             const mockMessages = new (Discord.Collection as any)([
-                ['1', { author: { id: 'bot123' }, delete: mockDeleteFn }],
-                ['2', { author: { id: 'other-user' }, delete: jest.fn() }],
+                ['1', { author: { id: 'bot123' }, embeds: [{ title: 'BongBot-Ptero' }], delete: mockDeleteFn }],
+                ['2', { author: { id: 'other-user' }, embeds: [], delete: jest.fn() }],
             ]);
 
             const fakeChannel = {
