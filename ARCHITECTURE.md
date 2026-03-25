@@ -136,8 +136,6 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 **Consequences**:
 - No compile-time guarantee that collectors follow the same signature
-- Hardcoded 10-minute timeout (600000ms) with no configuration
-- Potential resource leaks if collector cleanup fails
 
 **Severity**: High
 
@@ -161,46 +159,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 ---
 
-### 3.4 Silent Error Swallowing in API Layer
-
-**Location**: `pterodactylApi.ts`
-
-**Issue**: `fetchServerResources()` catches all errors and returns `null`, providing no distinction between "not found" and "network error".
-
-**Consequences**:
-- Callers must null-check instead of catching typed exceptions
-- Loss of diagnostic information on failures
-- Inconsistent with the rest of the codebase which throws on error
-
-**Severity**: Medium
-
----
-
-### 3.5 Type Safety Issues in Component ID Parsing
-
-**Location**: `server_status.ts`
-
-**Issue**: Custom ID parsing uses `string.split(':')` with no validation of structure or length, and no compile-time guarantee of format.
-
-**Consequences**:
-- Silent failures if custom ID format is malformed
-- Hard to refactor custom ID format globally
-
-**Severity**: Medium
-
----
-
-### 3.6 Hardcoded Configuration Values
-
-**Locations**:
-- `server_status.ts`: 600000ms collector timeout
-- `serverControlComponents.ts`: 3 max select rows, 25 options per menu
-
-**Severity**: Low
-
----
-
-### 3.7 Synchronous Database Operations in Async Context
+### 3.4 Synchronous Database Operations in Async Context
 
 **Location**: `database.ts`
 
@@ -216,17 +175,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 ### 4.1 Type-Safe Collector Interface (Priority: High, Effort: Low)
 
-```typescript
-interface CommandWithCollector {
-    setupCollector(interaction: ChatInputCommandInteraction, message: Message): Promise<void>;
-}
-
-function hasCollector(command: unknown): command is CommandWithCollector {
-    return typeof command === 'object' &&
-           command !== null &&
-           typeof (command as CommandWithCollector).setupCollector === 'function';
-}
-```
+Define a `CommandWithCollector` interface so `setupCollector` is enforced by the type system rather than detected at runtime. See TECHNICAL_DEBT.md §1.1 for implementation.
 
 ### 4.2 Extract State Polling to PollService (Priority: High, Effort: Medium)
 
@@ -256,21 +205,6 @@ class ComponentIdParser {
     }
 }
 ```
-
-### 4.4 Configuration Constants (Priority: Medium, Effort: Low)
-
-```typescript
-// src/config/constants.ts
-export const COLLECTOR_CONFIG = {
-    TIMEOUT_MS: 600_000,
-    POLL_INTERVAL_MS: 500,
-    MAX_POLL_ATTEMPTS: 120,
-};
-```
-
-### 4.5 Database Encryption Key Validation (Priority: Medium, Effort: Low)
-
-Validate `ENCRYPTION_KEY` at startup (length, hex format) rather than silently crashing at runtime when a command is first used.
 
 ---
 
@@ -306,7 +240,5 @@ Validate `ENCRYPTION_KEY` at startup (length, hex format) rather than silently c
 | High | Extract polling to PollService | Separation of Concerns |
 | High | Custom ID builder/parser | Type Safety |
 | Medium | Subcommand factory pattern | Testability |
-| Medium | Database config validation at startup | Error Handling |
-| Medium | Configuration constants module | Configuration |
 | Low | Typed Pterodactyl API response interfaces | Code Organisation |
 | Low | Async database layer | Performance |

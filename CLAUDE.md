@@ -40,7 +40,6 @@ The following are imported from `bongbot-core` and should NOT be duplicated loca
 - `EMBED_BUILDER` - Discord embed construction utilities
 - `LOGGER` - Logging service (DefaultLogger + FileLogger)
 - `generateCard` - GitHub info card embed generator
-- `initCore` - Core initialization (sets responses directory)
 - `validateRequiredConfig` - Config validation utility
 - `ExtendedClient`, `Logger` - TypeScript interfaces
 
