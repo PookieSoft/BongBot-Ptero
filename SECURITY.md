@@ -18,7 +18,6 @@ Mirasi's note - most of these have been accepted due to scale/size of the bot, t
 **Data Exfiltration (High)**
 - Pterodactyl API keys stored in database with no key rotation mechanism
 - Encryption key exposure allows decryption of all stored API keys
-- No file-level database encryption
 
 
 **Bot Permission Abuse (Medium)**
