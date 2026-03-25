@@ -10,3 +10,5 @@ report.json
 dist/*
 data/*
 logs/*
+.claude/
+test-results/
