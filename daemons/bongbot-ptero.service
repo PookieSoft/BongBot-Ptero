@@ -1,0 +1,25 @@
+[Unit]
+Description=BongBot Ptero Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker stop bongbot-ptero
+ExecStartPre=-/usr/bin/docker rm bongbot-ptero
+ExecStartPre=/usr/bin/docker pull mirasi/bongbot-ptero:latest
+
+ExecStart=/usr/bin/docker run \
+  --name bongbot-ptero \
+  --env-file /etc/bongbot/prod.env \
+  --volume /etc/bongbot/data:/app/data \
+  --volume /etc/bongbot/logs:/app/logs \
+  mirasi/bongbot-ptero:latest
+
+ExecStop=/usr/bin/docker stop bongbot-ptero
+ExecStopPost=/usr/bin/docker rm bongbot-ptero
+Restart=on-failure
+
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
