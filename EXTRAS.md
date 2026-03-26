@@ -68,10 +68,10 @@ There is no guide covering:
 ### 3.2 No Troubleshooting Guide
 Common failure scenarios ("bot is offline", "command times out", "API returns 403") have no first-aid steps documented.
 
-### 3.3 No `.env.example`
-There is no `.env.example` file. Contributors must read `CLAUDE.md` and `validateRequiredConfig()` to discover what variables are needed.
+### 3.3 `.env.example` Lacks Comments
+A `.env.example` file exists but contains only bare variable names with no comments explaining expected formats (e.g. `ENCRYPTION_KEY` should be 64 hex chars) or which variables are optional vs required.
 
-**Fix**: Add `.env.example` with a commented entry for every required and optional variable.
+**Fix**: Add inline comments to `.env.example` documenting expected format and whether each variable is required.
 
 ### 3.4 No CHANGELOG
 Releases contain only the raw commit message as the release body. There is no human-readable record of what changed between versions.
@@ -127,7 +127,7 @@ Adding a new subcommand requires manually creating a class file, a test file, up
 |----------|------|--------|
 | P1 | Modal for API key input | 1 hour |
 | P1 | Confirmation step for remove / stop-all | 1 hour |
-| P1 | `.env.example` with comments | 30 min |
+| P1 | Add comments to existing `.env.example` | 15 min |
 | P2 | ESLint + Prettier config + CI integration | 1 hour |
 | P2 | Centralised test factories | 2 hours |
 | P3 | CHANGELOG.md | Ongoing |

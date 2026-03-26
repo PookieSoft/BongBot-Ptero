@@ -59,6 +59,7 @@ The project uses discord.js v14.25.1. All current patterns are v14-compliant:
 **Location**: `src/commands/pterodactyl/server_status.ts`
 **Value**: `600000` (10 minutes)
 
+Currently hardcoded as a raw number. **Proposed fix** — extract to a named constant:
 ```typescript
 const COLLECTOR_TIMEOUT_MS = 10 * 60 * 1000;
 ```
@@ -69,7 +70,7 @@ const COLLECTOR_TIMEOUT_MS = 10 * 60 * 1000;
 **Location**: `src/commands/pterodactyl/server_status.ts`
 **Values**: `maxAttempts = 120`, `interval = 500`
 
-These represent 60 seconds of total polling with no inline explanation.
+These are inline default parameter values representing 60 seconds of total polling with no explanation. **Proposed fix** — extract to named constants:
 
 ```typescript
 const POLL_MAX_ATTEMPTS = 120;
@@ -80,8 +81,9 @@ const POLL_INTERVAL_MS = 500; // 120 × 500ms = 60 seconds total
 
 ### 3.3 Embed Colour
 **Locations**: `src/commands/pterodactyl/list_servers.ts`, `src/commands/pterodactyl/shared/serverStatusEmbed.ts`
-**Value**: `'#0099ff'` (duplicated)
+**Value**: `'#0099ff'` (duplicated as a string literal in both files)
 
+**Proposed fix** — extract to a shared constant:
 ```typescript
 // src/constants/colors.ts
 export const EMBED_COLORS = { PRIMARY: '#0099ff' } as const;
@@ -91,8 +93,9 @@ export const EMBED_COLORS = { PRIMARY: '#0099ff' } as const;
 
 ### 3.4 Server Name Truncation Limits
 **Location**: `src/commands/pterodactyl/shared/serverControlComponents.ts`
-**Values**: `80`, `77`
+**Values**: `80`, `77` (hardcoded inline in a ternary expression)
 
+**Proposed fix** — extract to named constants:
 ```typescript
 const MAX_LABEL_LENGTH = 80;      // Discord StringSelectMenu label limit
 const TRUNCATED_LENGTH = 77;      // 77 chars + '...' = 80
@@ -104,8 +107,9 @@ const TRUNCATED_LENGTH = 77;      // 77 chars + '...' = 80
 **Location**: `src/commands/pterodactyl/shared/serverControlComponents.ts`
 **Values**: `3` (max select rows), `25` (options per menu)
 
-These are Discord API limits and should be named constants with a comment to that effect.
+`3` is assigned to a local variable `maxRowsForSelects`, but `25` is an inline magic number. Both are Discord API limits and should be named constants with a comment to that effect.
 
+**Proposed fix**:
 ```typescript
 const MAX_SELECT_MENU_ROWS = 3;   // Discord message component row budget
 const MAX_OPTIONS_PER_MENU = 25;  // Discord StringSelectMenu hard limit
@@ -117,8 +121,9 @@ const MAX_OPTIONS_PER_MENU = 25;  // Discord StringSelectMenu hard limit
 **Location**: `src/index.ts`
 **Values**: `'Mirasii'`, `'BongBot-Ptero'`
 
-These are constants in source rather than environment variables, making the bot harder to fork or redirect.
+These are hardcoded string constants with no environment variable fallback, making the bot harder to fork or redirect.
 
+**Proposed fix** — allow env var overrides:
 ```typescript
 const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER ?? 'Mirasii';
 const GITHUB_REPO_NAME  = process.env.GITHUB_REPO_NAME  ?? 'BongBot-Ptero';
@@ -130,8 +135,9 @@ const GITHUB_REPO_NAME  = process.env.GITHUB_REPO_NAME  ?? 'BongBot-Ptero';
 **Location**: `src/commands/pterodactyl/shared/serverStatusEmbed.ts`
 **Values**: `'running'`, `'offline'`, `'starting'`, `'stopping'`
 
-These are repeated across the file with no shared type definition.
+These are repeated as bare string literals across the file with no shared type definition.
 
+**Proposed fix** — extract to a typed constant:
 ```typescript
 const SERVER_STATES = {
     RUNNING:  'running',
@@ -154,7 +160,7 @@ One minor point: the explicit type assertion `interaction as CommandInteraction`
 
 ## 5. Test Coverage Gaps
 
-Current coverage is excellent (100% statements, 100% functions, ~99% branches). The single uncovered branch is in `postDeploymentMessage` — the embed description-only match path:
+Current coverage is excellent (100% statements, 100% functions, ~99% branches). The single uncovered branch is in `postDeploymentMessage` — the embed description-only match path (`index.ts:66`):
 
 ```typescript
 embed.title?.includes(GITHUB_REPO_NAME) ||

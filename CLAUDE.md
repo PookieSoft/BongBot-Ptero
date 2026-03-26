@@ -74,12 +74,11 @@ NODE_OPTIONS=--experimental-vm-modules npx jest --testNamePattern="should return
 ### Entry Point and Bot Lifecycle
 
 `src/index.ts` bootstraps the bot:
-1. Calls `initCore()` from bongbot-core to set responses directory
-2. Validates required config via `validateRequiredConfig()`
-3. Initializes logging with a session UUID
-4. Builds commands via `buildCommands()` which populates `bot.commands` Collection
-5. Registers event handlers: `interactionCreate` (slash commands), `clientReady` (startup)
-6. Calls `bot.login(token)`
+1. Validates required config via `validateRequiredConfig()`
+2. Initializes logging with a session UUID
+3. Builds commands via `buildCommands()` which populates `bot.commands` Collection
+4. Registers event handlers: `interactionCreate` (slash commands), `clientReady` (startup)
+5. Calls `bot.login(token)`
 
 ### Command Structure
 

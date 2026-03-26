@@ -19,11 +19,9 @@ Mirasi's note - most of these have been accepted due to scale/size of the bot, t
 - Pterodactyl API keys stored in database with no key rotation mechanism
 - Encryption key exposure allows decryption of all stored API keys
 
-
-**Bot Permission Abuse (Medium)**
-- No audit trail for administrative actions
-
 ---
+
+## 2. Found Vulnerabilities
 
 ### 2.1 HIGH: No Rate Limiting on Any Command
 
@@ -59,14 +57,6 @@ interface EncryptedData { version: number; iv: string; authTag: string; data: st
 
 ---
 
-### 2.3 MEDIUM: No Audit Logging for Sensitive Operations
-
-No record is kept of who started, stopped, registered, updated, or deleted servers. There is no forensic trail for incident response.
-
-**Fix**: Add an `audit_logs` table and write an entry for every state-changing operation, including `userId`, `action`, `serverId`, and `timestamp`.
-
----
-
 ## 3. Insecure Defaults
 
 | Default | Risk | Recommendation |
@@ -81,9 +71,8 @@ No record is kept of who started, stopped, registered, updated, or deleted serve
 1. Add per-user cooldowns (5–30s) on all subcommands
 
 ### Priority 2 — Technical Debt
-2. Implement encryption key versioning for future rotation
-3. Add audit logging table for state-changing operations
-4. Add security-focused test cases: permission bypass, input edge cases
+1. Implement encryption key versioning for future rotation
+2. Add security-focused test cases: permission bypass, input edge cases
 
 ---
 
