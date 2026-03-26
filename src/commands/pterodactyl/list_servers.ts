@@ -13,7 +13,7 @@ export default class ListServers {
         try {
             const servers = this.db.getServersByUserId(interaction.user.id);
             const embed = new EmbedBuilder()
-                .setColor('#0099ff')
+                .setColor('#0099ff') // TODO: [TECHNICAL_DEBT 3.3] Extract to shared EMBED_COLORS constant (duplicated in serverStatusEmbed.ts)
                 .setTitle('🎮 Registered Servers')
                 .setTimestamp();
             if (servers.length === 0) {

@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import { buildError, Caller } from 'bongbot-core';
 import Database from '../../helpers/database.js';
-import { fetchServers } from './shared/pterodactylApi.js';
+import { fetchServers } from './shared/pterodactyl_api.js';
 
 export default class UpdateServer {
     private db : Database;
@@ -17,6 +17,7 @@ export default class UpdateServer {
             const apiKey = interaction.options.getString('api_key');
             const userId = interaction.user.id;
 
+            // TODO: [BUGS 2.1] O(n) lookup — add a getServerByName(userId, serverName) method to Database
             const existingServers = this.db.getServersByUserId(userId);
             const existingServer = existingServers.find(s => s.serverName === serverName);
 

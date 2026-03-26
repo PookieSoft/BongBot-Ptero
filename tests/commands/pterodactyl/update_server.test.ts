@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { createMockInteraction, createMockClient } from '../../utils/commandTestUtils.js';
+import { createMockInteraction, createMockClient } from '../../utils/command_test_utils.js';
 
 // Set allowed hosts for SSRF bypass
 process.env.PTERODACTYL_ALLOWED_HOSTS = 'new-panel.example.com,existing-panel.example.com';

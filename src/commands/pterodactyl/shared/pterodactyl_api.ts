@@ -7,6 +7,8 @@ export async function fetchServers(caller: Caller, serverUrl: string, apiKey: st
     return json.data;
 }
 
+// TODO: [BUGS 3.1] All errors collapse to null — callers can't distinguish network/auth/notfound.
+//   Consider returning a discriminated union (e.g. { status: 'ok', data } | { status: 'error', code, message }).
 export async function fetchServerResources(caller: Caller, identifier: string, serverUrl: string, apiKey: string): Promise<ServerResources | null> {
     try {
         await caller.validateServerSSRF(serverUrl);

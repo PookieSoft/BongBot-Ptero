@@ -8,7 +8,7 @@ jest.unstable_mockModule('../../src/commands/pterodactyl/master.js', () => ({
 }));
 
 // Import after mocks are set up
-const { default: buildCommands } = await import('../../src/commands/buildCommands.js');
+const { default: buildCommands } = await import('../../src/commands/build_commands.js');
 
 describe('buildCommands', () => {
     let mockClient: ExtendedClient;

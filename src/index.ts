@@ -3,8 +3,9 @@ import type { Message, InteractionReplyOptions, CommandInteraction, Interaction 
 import type { ExtendedClient } from 'bongbot-core';
 import { LOGGER, buildUnknownError, generateCard, validateRequiredConfig } from 'bongbot-core';
 import crypto from 'crypto';
-import buildCommands from './commands/buildCommands.js';
+import buildCommands from './commands/build_commands.js';
 
+// TODO: [TECHNICAL_DEBT 3.6] Allow env var overrides for forkability
 const GITHUB_REPO_OWNER = 'Mirasii';
 const GITHUB_REPO_NAME = 'BongBot-Ptero';
 
@@ -23,7 +24,7 @@ buildCommands(bot);
 /** respond to slash commands */
 bot.on('interactionCreate', async (interaction: Interaction) => {
     if (!interaction.isCommand()) { return; }
-    interaction as CommandInteraction;
+    interaction as CommandInteraction; // TODO: [TECHNICAL_DEBT 4] Redundant cast — TypeScript narrows after isCommand() guard
 
     try {
         const command = bot.commands!.get(interaction.commandName);
@@ -34,6 +35,7 @@ bot.on('interactionCreate', async (interaction: Interaction) => {
             await interaction.deleteReply();
         }
         const message = await interaction.followUp(response);
+        // TODO: [TECHNICAL_DEBT 1.1 / ARCHITECTURE 3.1] Replace `as any` with a CommandWithCollector type guard interface
         if (command && typeof (command as any).setupCollector=== 'function') {
             await (command as any).setupCollector(interaction, message);
         }
@@ -67,6 +69,7 @@ const postDeploymentMessage = async () => {
                 embed.description?.includes(GITHUB_REPO_NAME)
             )
         );
+        // TODO: [BUGS 1.2] message.delete() is async but not awaited — use Promise.allSettled with error handling
         botMessages?.forEach((message: Message) => message.delete());
     } catch (err: any) {
         console.warn(`Warning: Could not delete messages. The bot might be missing 'Manage Messages' permissions. Error: ${err.message}`);
@@ -76,6 +79,8 @@ const postDeploymentMessage = async () => {
     await channel.send({ embeds: [card] });
 
 };
+
+// TODO: [BUGS 4.1] Add SIGTERM/SIGINT handlers for graceful shutdown (DatabasePool.closeAll(), bot.destroy())
 
 /** login to bot */
 bot.login(token);

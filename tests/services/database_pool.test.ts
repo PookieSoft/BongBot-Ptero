@@ -16,7 +16,7 @@ jest.unstable_mockModule('../../src/helpers/database.js', () => ({
 }));
 
 // Import after mocking
-const { default: DatabasePool } = await import('../../src/services/databasePool.js');
+const { default: DatabasePool } = await import('../../src/services/database_pool.js');
 
 describe('DatabasePool', () => {
     beforeEach(() => {

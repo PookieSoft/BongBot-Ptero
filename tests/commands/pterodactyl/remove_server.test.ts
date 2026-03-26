@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
-import { createMockInteraction, createMockClient } from '../../utils/commandTestUtils.js';
+import { createMockInteraction, createMockClient } from '../../utils/command_test_utils.js';
 
 // Mock Database
 const mockDeleteServer = jest.fn();

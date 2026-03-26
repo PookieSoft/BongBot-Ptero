@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction, ButtonInteraction, Message, StringSelectMenuInteraction } from 'discord.js';
 import Database, { PterodactylServer as DbPterodactylServer } from '../../helpers/database.js';
 import { buildError, Caller } from 'bongbot-core';
-import { fetchServers, fetchServerResources, fetchAllServerResources, sendServerCommand } from './shared/pterodactylApi.js';
-import { buildServerStatusEmbed } from './shared/serverStatusEmbed.js';
-import { buildServerControlComponents, disableAllComponents } from './shared/serverControlComponents.js';
+import { fetchServers, fetchServerResources, fetchAllServerResources, sendServerCommand } from './shared/pterodactyl_api.js';
+import { buildServerStatusEmbed } from './shared/server_status_embed.js';
+import { buildServerControlComponents, disableAllComponents } from './shared/server_control_components.js';
 import type { Logger } from 'bongbot-core';
 export default class ServerStatus {
     private db: Database;
@@ -56,6 +56,7 @@ export default class ServerStatus {
 
     async setupCollector(interaction: ChatInputCommandInteraction, message: Message): Promise<void> {
         if (!('manage' === interaction.options.getSubcommand())) { return; }
+        // TODO: [BUGS 4.2 / TECHNICAL_DEBT 3.1] Add idle timeout (e.g. idle: 300000) and extract 600000 to a named constant
         const collector = message.createMessageComponentCollector({ time: 600000 });
 
         collector.on('collect', async (componentInteraction: ButtonInteraction | StringSelectMenuInteraction) => {
@@ -95,7 +96,7 @@ export default class ServerStatus {
                 await componentInteraction.followUp({
                     content: '❌ An error occurred processing your request.',
                     ephemeral: true,
-                }).catch(() => {});
+                }).catch(() => {}); // TODO: [BUGS 1.3] Log the error instead of silently swallowing
 
                 if (dbServerId) {
                     await this.refreshStatus(componentInteraction, parseInt(dbServerId));
@@ -110,6 +111,7 @@ export default class ServerStatus {
         });
     }
 
+    // TODO: [BUGS 3.2 / ARCHITECTURE 4.3] Validate split length before destructuring; consider a ComponentIdParser utility
     private parseComponentInteraction(componentInteraction: ButtonInteraction | StringSelectMenuInteraction): {
         dbServerId: string;
         identifier: string;
@@ -144,6 +146,7 @@ export default class ServerStatus {
     ): Promise<void> {
         if (identifier === 'all' && action === 'stop') {
             const servers = await fetchServers(this.caller, dbServer.serverUrl, dbServer.apiKey);
+            // TODO: [BUGS 2.4] Add concurrency limiting (e.g. p-limit) and backoff on 429 responses
             const stopPromises = servers.map((server) =>
                 sendServerCommand(this.caller, server.attributes.identifier, 'stop', dbServer.serverUrl, dbServer.apiKey)
                     .then((success) => ({ identifier: server.attributes.identifier, name: server.attributes.name, success }))
@@ -154,7 +157,7 @@ export default class ServerStatus {
             const successfulIdentifiers: string[] = [];
 
             for (const result of results) {
-                // sendServerCommand catches all errors, so results are always fulfilled
+                // TODO: [BUGS 3.3] Use a type guard (result.status === 'fulfilled') instead of unsafe cast
                 const value = (result as PromiseFulfilledResult<{ identifier: string; name: string; success: boolean }>).value;
                 if (!value.success) {
                     failedServers.push(value.name);
@@ -210,6 +213,10 @@ export default class ServerStatus {
         }
     }
 
+    // TODO: [BUGS 1.1 / 1.4 / ARCHITECTURE 4.2] Refactor polling — return a Promise that resolves when done,
+    //   track the interval ID for cleanup on error/collector end, and guard against overlapping checkStatus calls.
+    //   Extract maxAttempts/interval to named constants (TECHNICAL_DEBT 3.2).
+    //   Consider extracting to a standalone PollService class (ARCHITECTURE 4.2).
     private async pollUntilStateChange(
         componentInteraction: ButtonInteraction | StringSelectMenuInteraction,
         identifiers: string[],
@@ -279,7 +286,7 @@ export default class ServerStatus {
                 components: components,
             });
         } catch (error) {
-            this._logger.error(error as Error);
+            this._logger.error(error as Error); // TODO: [EXTRAS 4.5] Pass interaction for request correlation
         }
     }
 }

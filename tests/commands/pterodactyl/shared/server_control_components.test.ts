@@ -3,7 +3,7 @@ import { ComponentType } from 'discord.js';
 import {
     buildServerControlComponents,
     disableAllComponents,
-} from '../../../../src/commands/pterodactyl/shared/serverControlComponents.js';
+} from '../../../../src/commands/pterodactyl/shared/server_control_components.js';
 import type { PterodactylServer, ServerResources } from '../../../../src/commands/pterodactyl/shared/pterodactylApi.js';
 
 describe('serverControlComponents', () => {

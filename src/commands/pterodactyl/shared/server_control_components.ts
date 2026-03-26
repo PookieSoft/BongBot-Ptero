@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ComponentType, APIButtonComponent } from 'discord.js';
-import { PterodactylServer, ServerResources } from './pterodactylApi.js';
+import { PterodactylServer, ServerResources } from './pterodactyl_api.js';
 
 export function buildServerControlComponents(servers: PterodactylServer[], resources: (ServerResources | null)[], dbServerId: number): (ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>)[] {
     const rows: (ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>)[] = [];
@@ -7,6 +7,7 @@ export function buildServerControlComponents(servers: PterodactylServer[], resou
 
     servers.forEach((server, index) => {
         const state = resources[index]?.attributes.current_state || 'unknown';
+        // TODO: [TECHNICAL_DEBT 3.4] Extract 80/77 to named constants (Discord StringSelectMenu label limit)
         const serverName = server.attributes.name.length > 80
             ? server.attributes.name.substring(0, 77) + '...'
             : server.attributes.name;
@@ -33,6 +34,7 @@ export function buildServerControlComponents(servers: PterodactylServer[], resou
         }
     });
 
+    // TODO: [TECHNICAL_DEBT 3.5] Extract 25 to a named constant (Discord StringSelectMenu hard limit)
     const maxRowsForSelects = 3;
     const optionsPerMenu = Math.ceil(
         allOptions.length / Math.min(maxRowsForSelects, Math.ceil(allOptions.length / 25))

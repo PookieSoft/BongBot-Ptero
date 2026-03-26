@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { createMockInteraction } from '../../utils/commandTestUtils.js';
+import { createMockInteraction } from '../../utils/command_test_utils.js';
 
 // Set allowed hosts for SSRF bypass
 process.env.PTERODACTYL_ALLOWED_HOSTS = 'panel.example.com';

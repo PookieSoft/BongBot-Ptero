@@ -11,6 +11,7 @@ export default class RemoveServer {
         try {
             const serverName = interaction.options.getString('server_name', true).trim();
             const userId = interaction.user.id;
+            // TODO: [EXTRAS 2.4] Add confirmation Modal or ephemeral prompt before deleting
             this.db.deleteServer(userId, serverName);
 
             return {

@@ -119,6 +119,7 @@ export default class Database {
         return server;
     }
 
+    // TODO: [BUGS 2.2] Decrypts all API keys eagerly on every query — consider deferring decryption until the key is needed
     getServersByUserId(userId: string): PterodactylServer[] {
         const stmt = this.db.prepare(
             'SELECT * FROM pterodactyl_servers WHERE userId = ?',
@@ -135,6 +136,7 @@ export default class Database {
         this.db.close();
     }
 
+    // TODO: [SECURITY 2.2] Add key version to ciphertext format for future rotation support
     private encryptApiKey(plaintext: string): string {
         const key = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
         const iv = crypto.randomBytes(16);

@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import { buildError, Caller } from 'bongbot-core';
 import Database from '../../helpers/database.js';
-import { fetchServers } from './shared/pterodactylApi.js';
+import { fetchServers } from './shared/pterodactyl_api.js';
 
 export default class RegisterServer {
     private db : Database;

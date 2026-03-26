@@ -4,7 +4,7 @@ import ListServers from './list_servers.js';
 import ServerStatus from './server_status.js';
 import UpdateServer from './update_server.js';
 import RemoveServer from './remove_server.js';
-import DatabasePool from '../../services/databasePool.js';
+import DatabasePool from '../../services/database_pool.js';
 import { Caller, LOGGER } from 'bongbot-core';
 
 function getAllowedHosts(): string[] {
@@ -33,6 +33,7 @@ export default {
                         .setDescription('The URL of your Pterodactyl panel')
                         .setRequired(true)
                 )
+                // TODO: [EXTRAS 2.1] Accept API key via Modal instead of visible slash command option
                 .addStringOption(option =>
                     option
                         .setName('api_key')
@@ -91,6 +92,7 @@ export default {
                 )
         ),
 
+    // TODO: [SECURITY 2.1] Add per-user cooldown check before executing subcommands
     async execute(interaction: ChatInputCommandInteraction) {
         const subcommand = interaction.options.getSubcommand();
         const db = DatabasePool.getInstance().getConnection();

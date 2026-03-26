@@ -1,9 +1,9 @@
 import { EmbedBuilder } from 'discord.js';
-import { PterodactylServer, ServerResources } from './pterodactylApi.js';
+import { PterodactylServer, ServerResources } from './pterodactyl_api.js';
 
 export function buildServerStatusEmbed(servers: PterodactylServer[], resources: (ServerResources | null)[], description?: string): EmbedBuilder {
     const embed = new EmbedBuilder()
-        .setColor('#0099ff')
+        .setColor('#0099ff') // TODO: [TECHNICAL_DEBT 3.3] Extract to shared EMBED_COLORS constant (duplicated in list_servers.ts)
         .setTitle('🎮 Game Server Status')
         .setTimestamp();
 
@@ -42,6 +42,7 @@ function formatServerField(resource: ServerResources | null): string {
     return value;
 }
 
+// TODO: [TECHNICAL_DEBT 3.7] Extract state strings to a shared SERVER_STATES constant with a ServerState type
 function getStatusEmoji(state: string): string {
     switch (state) {
         case 'running':

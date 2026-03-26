@@ -47,7 +47,7 @@ jest.unstable_mockModule('bongbot-core', () => ({
 }));
 
 // Mock buildCommands
-jest.unstable_mockModule('../src/commands/buildCommands.js', () => ({
+jest.unstable_mockModule('../src/commands/build_commands.js', () => ({
     default: jest.fn((_bot: any) => {}),
 }));
 

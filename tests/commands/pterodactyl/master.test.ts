@@ -17,7 +17,7 @@ const mockGetConnection = jest.fn().mockReturnValue({
     close: jest.fn(),
 });
 
-jest.unstable_mockModule('../../../src/services/databasePool.js', () => ({
+jest.unstable_mockModule('../../../src/services/database_pool.js', () => ({
     default: {
         getInstance: jest.fn().mockReturnValue({
             getConnection: mockGetConnection,
