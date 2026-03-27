@@ -4,7 +4,7 @@ import {
     buildServerControlComponents,
     disableAllComponents,
 } from '../../../../src/commands/pterodactyl/shared/server_control_components.js';
-import type { PterodactylServer, ServerResources } from '../../../../src/commands/pterodactyl/shared/pterodactylApi.js';
+import type { PterodactylServer, ServerResources } from '../../../../src/commands/pterodactyl/shared/pterodactyl_api.js';
 
 describe('serverControlComponents', () => {
     describe('buildServerControlComponents', () => {
@@ -37,6 +37,9 @@ describe('serverControlComponents', () => {
 
             expect(rows.length).toBeGreaterThan(0);
             const selectMenu = rows[0].components[0];
+            if (!('custom_id' in selectMenu.data)) {
+                fail('Expected custom_id in component data');
+            }
             expect(selectMenu.data.custom_id).toContain('server_control:1:menu');
         });
 
@@ -59,6 +62,9 @@ describe('serverControlComponents', () => {
 
             const lastRow = rows[rows.length - 1];
             const button = lastRow.components[0];
+            if (!('custom_id' in button.data)) {
+                fail('Expected custom_id in component data');
+            }
             expect(button.data.custom_id).toBe('server_control:1:all:stop');
         });
 
@@ -71,6 +77,9 @@ describe('serverControlComponents', () => {
 
             rows.forEach(row => {
                 const component = row.components[0];
+                if (!('custom_id' in component.data)) {
+                    fail('Expected custom_id in component data');
+                }
                 expect(component.data.custom_id).toContain('menu');
             });
         });
