@@ -16,9 +16,8 @@
     "noFallthroughCasesInSwitch": true,
     "rootDir": ".",
     "types": ["jest", "node"],
-    "baseUrl": ".",
     "paths": {
-      "bongbot-core": ["node_modules/bongbot-core/dist/index"] 
+      "bongbot-core": ["./node_modules/bongbot-core/dist/index"] 
     }
   },
   "include": ["src/**/*", "tests/**/*"],
