@@ -11,7 +11,8 @@
         "prepare": "npx tsc -p tsconfig.lib.json --noCheck"
     },
     "dependencies": {
-        "bongbot-core": "github:Mirasii/BongBot-Core#main"
+        "bongbot-core": "github:Mirasii/BongBot-Core#main",
+        "typescript": "^5.9.3"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.13",
@@ -25,7 +26,6 @@
         "msw": "^2.12.14",
         "ts-jest": "^29.4.6",
         "ts-jest-resolver": "^2.0.1",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.9.3"
+        "ts-node": "^10.9.2"
     }
 }
