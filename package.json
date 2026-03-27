@@ -7,7 +7,8 @@
     "scripts": {
         "build": "node esbuild.config.mjs --minify",
         "build-dev": "docker build -f ./Dockerfile --build-arg CORE_SOURCE=file:/core .. -t bongbot-ptero && docker run --rm --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero",
-        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent"
+        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent",
+        "prepare": "npx tsc -p tsconfig.lib.json --noCheck"
     },
     "dependencies": {
         "bongbot-core": "github:Mirasii/BongBot-Core#main"

@@ -96,7 +96,7 @@ export default class ServerStatus {
                 await componentInteraction.followUp({
                     content: '❌ An error occurred processing your request.',
                     ephemeral: true,
-                }).catch(() => {}); // TODO: [BUGS 1.3] Log the error instead of silently swallowing
+                }).catch((error) => { this._logger.error(error, interaction); });
 
                 if (dbServerId) {
                     await this.refreshStatus(componentInteraction, parseInt(dbServerId));
