@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { ChatInputCommandInteraction, Message } from 'discord.js';
 
 // Mock bongbot-core
 jest.unstable_mockModule('bongbot-core', () => ({
@@ -26,12 +27,12 @@ jest.unstable_mockModule('../../../src/services/database_pool.js', () => ({
 }));
 
 // Mock the subcommand modules as classes
-const mockRegisterExecute = jest.fn();
-const mockListExecute = jest.fn();
-const mockServerStatusExecute = jest.fn();
-const mockUpdateExecute = jest.fn();
-const mockRemoveExecute = jest.fn();
-const mockSetupCollector = jest.fn();
+const mockRegisterExecute = jest.fn<() => Promise<any>>();
+const mockListExecute = jest.fn<() => Promise<any>>();
+const mockServerStatusExecute = jest.fn<() => Promise<any>>();
+const mockUpdateExecute = jest.fn<() => Promise<any>>();
+const mockRemoveExecute = jest.fn<() => Promise<any>>();
+const mockSetupCollector = jest.fn<() => Promise<any>>();
 
 jest.unstable_mockModule('../../../src/commands/pterodactyl/register_server.js', () => ({
     default: class MockRegisterServer {
@@ -100,12 +101,12 @@ describe('pterodactyl master command', () => {
             options: {
                 getSubcommand: jest.fn(),
             },
-        };
+        } as unknown as ChatInputCommandInteraction;
         const mockMessage = {
             createMessageComponentCollector: jest.fn().mockReturnValue({
                 on: jest.fn(),
             }),
-        };
+        } as unknown as Message;
 
         pterodactylCommand.setupCollector(mockInteraction, mockMessage);
 
@@ -162,8 +163,10 @@ describe('pterodactyl master command', () => {
     it('register subcommand should have required options', () => {
         const commandData = pterodactylCommand.data.toJSON();
         const registerCmd = commandData.options?.find((opt: any) => opt.name === 'register');
-        expect(registerCmd?.options).toBeDefined();
-        expect(registerCmd?.options?.length).toBe(3);
+        if (!('options' in registerCmd!)) {
+            fail('Expected register subcommand to have options');
+        }
+        expect(registerCmd.options!.length).toBe(3);
 
         const optionNames = registerCmd?.options?.map((opt: any) => opt.name);
         expect(optionNames).toContain('server_name');
@@ -174,6 +177,9 @@ describe('pterodactyl master command', () => {
     it('update subcommand should have optional url and api_key options', () => {
         const commandData = pterodactylCommand.data.toJSON();
         const updateCmd = commandData.options?.find((opt: any) => opt.name === 'update');
+        if (!('options' in updateCmd!)) {
+            fail('Expected update subcommand to have options');
+        }
         expect(updateCmd?.options).toBeDefined();
         expect(updateCmd?.options?.length).toBe(3);
 
