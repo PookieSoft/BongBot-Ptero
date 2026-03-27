@@ -13,7 +13,7 @@ const GITHUB_REPO_NAME = 'BongBot-Ptero';
 // Validate required environment variables early to fail fast
 const errors: string[] = [];
 if (!process.env.DISCORD_API_KEY) { errors.push('DISCORD_API_KEY is required'); }
-validateRequiredConfig(errors);
+validateRequiredConfig();
 const token: string = process.env.DISCORD_API_KEY!;
 const bot: ExtendedClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
