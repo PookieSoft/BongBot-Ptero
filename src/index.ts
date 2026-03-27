@@ -5,6 +5,9 @@ import { LOGGER, buildUnknownError, generateCard, validateRequiredConfig } from 
 import crypto from 'crypto';
 import buildCommands from './commands/build_commands.js';
 
+/** export commands for use on composite bot */
+export { default as pterodactyl } from './commands/pterodactyl/master.js';
+
 // TODO: [TECHNICAL_DEBT 3.6] Allow env var overrides for forkability
 const GITHUB_REPO_OWNER = 'Mirasii';
 const GITHUB_REPO_NAME = 'BongBot-Ptero';
