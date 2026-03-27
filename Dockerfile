@@ -12,7 +12,6 @@ COPY ./tsconfig.json /app/tsconfig.json
 COPY ./esbuild.config.mjs /app/esbuild.config.mjs
 
 RUN --mount=type=cache,target=/root/.npm npm install
-RUN cd node_modules/bongbot-core && npm install && npm run prepare
 RUN npm run build
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/data
