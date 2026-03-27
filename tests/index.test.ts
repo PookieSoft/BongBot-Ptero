@@ -59,8 +59,9 @@ jest.unstable_mockModule('discord.js', () => {
 
 // Mock bongbot-core
 const mockBuildUnknownError = jest.fn((err: any) => ({ content: `Error: ${err.message}`, isError: true }));
-const mockGenerateCard = jest.fn(() => ({ title: 'Fake Card' }));
-const mockValidateRequiredConfig = jest.fn();
+const mockGenerateCard = jest.fn(async (client: any, config: { repoOwner: string; repoName: string }) => ({ 
+    title: 'Fake Card' 
+}));const mockValidateRequiredConfig = jest.fn();
 const mockLoggerLog = jest.fn();
 
 jest.unstable_mockModule('bongbot-core', () => ({
@@ -289,7 +290,7 @@ describe('BongBot-Ptero index', () => {
             process.env.DISCORD_CHANNEL_ID = 'test-channel-id';
 
             const Discord = await import('discord.js');
-            const mockDeleteFn = jest.fn().mockResolvedValue(undefined);
+            const mockDeleteFn = jest.fn<() => Promise<any>>().mockResolvedValue(undefined);
             const mockMessages = new (Discord.Collection as any)([
                 ['1', { author: { id: 'bot123' }, embeds: [{ title: 'BongBot-Ptero' }], delete: mockDeleteFn }],
                 ['2', { author: { id: 'other-user' }, embeds: [], delete: jest.fn() }],
@@ -298,7 +299,7 @@ describe('BongBot-Ptero index', () => {
             const fakeChannel = {
                 isTextBased: () => true,
                 send: jest.fn(),
-                messages: { fetch: jest.fn().mockResolvedValue(mockMessages) },
+                messages: { fetch: jest.fn<() => Promise<any>>().mockResolvedValue(mockMessages) },
             };
             mockClient.channels.fetch.mockResolvedValueOnce(fakeChannel);
             mockGenerateCard.mockResolvedValueOnce({ title: 'Deploy Card' });
@@ -319,7 +320,7 @@ describe('BongBot-Ptero index', () => {
             const fakeChannel = {
                 isTextBased: () => true,
                 send: jest.fn(),
-                messages: { fetch: jest.fn().mockRejectedValue(new Error('Forbidden')) },
+                messages: { fetch: jest.fn<() => Promise<any>>().mockRejectedValue(new Error('Forbidden')) },
             };
             mockClient.channels.fetch.mockResolvedValueOnce(fakeChannel);
 
