@@ -122,7 +122,7 @@ describe('update_server command', () => {
                 mockInteraction as ChatInputCommandInteraction
             );
             if (!('content' in result)) {
-                throw new Error('Expected result to have content, but it had embeds/files instead');
+                fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockGetServersByUserId).toHaveBeenCalledWith('test-user-123');
             expect(mockUpdateServer).toHaveBeenCalledWith('test-user-123', 'Test Server', {
@@ -144,7 +144,7 @@ describe('update_server command', () => {
                 mockInteraction as ChatInputCommandInteraction
             );
             if (!('content' in result)) {
-                throw new Error('Expected result to have content, but it had embeds/files instead');
+                fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockUpdateServer).toHaveBeenCalledWith('test-user-123', 'Test Server', {
                 apiKey: 'new-api-key-123',
@@ -164,7 +164,7 @@ describe('update_server command', () => {
                 mockInteraction as ChatInputCommandInteraction
             );
             if (!('content' in result)) {
-                throw new Error('Expected result to have content, but it had embeds/files instead');
+                fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockUpdateServer).toHaveBeenCalledWith('test-user-123', 'Test Server', {
                 serverUrl: testServerUrl,
@@ -227,7 +227,7 @@ describe('update_server command', () => {
                 mockInteraction as ChatInputCommandInteraction
             );
             if (!('content' in result)) {
-                throw new Error('Expected result to have content, but it had embeds/files instead');
+                fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
@@ -253,7 +253,7 @@ describe('update_server command', () => {
                 mockInteraction as ChatInputCommandInteraction
             );
             if (!('content' in result)) {
-                throw new Error('Expected result to have content, but it had embeds/files instead');
+                fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
             expect(result.content).toBe('Error updating server');
