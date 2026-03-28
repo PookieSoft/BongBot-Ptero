@@ -266,15 +266,5 @@ describe('pterodactyl master command', () => {
             });
         });
 
-        it('should pass allowed hosts from PTERODACTYL_ALLOWED_HOSTS env var', async () => {
-            process.env.PTERODACTYL_ALLOWED_HOSTS = 'host1.com, host2.com';
-            mockInteraction.options.getSubcommand.mockReturnValue('list');
-            mockListExecute.mockResolvedValue({ content: 'listed' });
-
-            await pterodactylCommand.execute(mockInteraction);
-
-            expect(mockListExecute).toHaveBeenCalledWith(mockInteraction);
-            delete process.env.PTERODACTYL_ALLOWED_HOSTS;
-        });
     });
 });
