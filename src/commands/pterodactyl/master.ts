@@ -7,11 +7,6 @@ import RemoveServer from './remove_server.js';
 import DatabasePool from '../../services/database_pool.js';
 import { Caller, LOGGER } from 'bongbot-core';
 
-function getAllowedHosts(): string[] {
-    const hosts = process.env.PTERODACTYL_ALLOWED_HOSTS;
-    return hosts ? hosts.split(',').map(h => h.trim()) : [];
-}
-
 export default {
     msgFlag: MessageFlags.Ephemeral,
     data: new SlashCommandBuilder()
