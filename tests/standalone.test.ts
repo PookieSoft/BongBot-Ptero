@@ -105,7 +105,7 @@ jest.unstable_mockModule('../src/commands/build_commands.js', () => ({
     }),
 }));
 
-describe('standalone - startBot', () => {
+describe('standalone', () => {
     let Discord: any;
     let mockClient: any;
 
@@ -308,9 +308,11 @@ describe('standalone - startBot', () => {
 
             const Discord = await import('discord.js');
             const mockDeleteFn = jest.fn<() => Promise<any>>().mockResolvedValue(undefined);
+            const mockDeleteDescFn = jest.fn<() => Promise<any>>().mockResolvedValue(undefined);
             const mockMessages = new (Discord.Collection as any)([
                 ['1', { author: { id: 'bot123' }, embeds: [{ title: 'BongBot-Ptero' }], delete: mockDeleteFn }],
                 ['2', { author: { id: 'other-user' }, embeds: [], delete: jest.fn() }],
+                ['3', { author: { id: 'bot123' }, embeds: [{ description: 'Deployed BongBot-Ptero v2' }], delete: mockDeleteDescFn }],
             ]);
 
             const fakeChannel = {
@@ -330,6 +332,7 @@ describe('standalone - startBot', () => {
                 { repoOwner: 'Mirasii', repoName: 'BongBot-Ptero' }
             );
             expect(mockDeleteFn).toHaveBeenCalled();
+            expect(mockDeleteDescFn).toHaveBeenCalled();
         });
 
         it('warns when lacking manage messages permission', async () => {
@@ -359,6 +362,52 @@ describe('standalone - startBot', () => {
             await handler();
 
             expect(mockLoggerLog).toHaveBeenCalledWith(expect.any(Error));
+        });
+    });
+
+    describe('missing DISCORD_API_KEY', () => {
+        let originalKey: string | undefined;
+        const mockValidateNoEnv = jest.fn();
+
+        beforeAll(async () => {
+            originalKey = process.env.DISCORD_API_KEY;
+            delete process.env.DISCORD_API_KEY;
+
+            jest.resetModules();
+            jest.unstable_mockModule('crypto', () => {
+                const m = { randomUUID: jest.fn(() => 'fixed-uuid-no-env') };
+                return { ...m, default: m };
+            });
+            jest.unstable_mockModule('discord.js', () => ({
+                Client: jest.fn(() => ({ on: jest.fn(), login: jest.fn(), commands: new Map() })),
+                GatewayIntentBits: { Guilds: 1, GuildMessages: 2, MessageContent: 4 },
+                MessageFlags: { Loading: 1 << 7, Ephemeral: 1 << 6 },
+                Collection: Map,
+            }));
+            jest.unstable_mockModule('bongbot-core', () => ({
+                LOGGER: { log: jest.fn(), default: { info: jest.fn(), debug: jest.fn(), error: jest.fn() } },
+                buildError: jest.fn(),
+                buildUnknownError: jest.fn(),
+                Caller: jest.fn(() => ({ get: jest.fn(), post: jest.fn() })),
+                generateCard: jest.fn(),
+                validateRequiredConfig: mockValidateNoEnv,
+            }));
+            jest.unstable_mockModule('../src/commands/build_commands.js', () => ({
+                default: jest.fn(),
+            }));
+
+            const { startBot } = await import('../src/standalone.js');
+            startBot();
+        });
+
+        afterAll(() => {
+            if (originalKey !== undefined) {
+                process.env.DISCORD_API_KEY = originalKey;
+            }
+        });
+
+        it('calls validateRequiredConfig when DISCORD_API_KEY is not set', () => {
+            expect(mockValidateNoEnv).toHaveBeenCalled();
         });
     });
 });
