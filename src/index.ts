@@ -1,3 +1,6 @@
+/** export commands for use on composite bot */
+export { default as pterodactyl } from './commands/pterodactyl/master.js';
+
 import { Client, GatewayIntentBits, MessageFlags } from 'discord.js';
 import type { Message, InteractionReplyOptions, CommandInteraction, Interaction } from 'discord.js';
 import type { ExtendedClient } from 'bongbot-core';
