@@ -14,12 +14,12 @@
     "isolatedModules": true,
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
-    "rootDir": ".",
+    "rootDir": "./src",
     "types": ["jest", "node"],
     "paths": {
       "bongbot-core": ["./node_modules/bongbot-core/dist/index"] 
     }
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
