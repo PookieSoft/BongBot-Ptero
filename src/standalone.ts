@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, MessageFlags } from 'discord.js';
-import type { Message, InteractionReplyOptions, CommandInteraction, Interaction } from 'discord.js';
+import type { Message, InteractionReplyOptions, CommandInteraction, Interaction, ApplicationCommandDataResolvable } from 'discord.js';
 import type { ExtendedClient } from 'bongbot-core';
 import { LOGGER, buildUnknownError, generateCard, validateRequiredConfig } from 'bongbot-core';
 import crypto from 'crypto';
@@ -20,7 +20,7 @@ const bot: ExtendedClient = new Client({ intents: [GatewayIntentBits.Guilds, Gat
 
 /** set up logging */
 process.env.SESSION_ID = crypto.randomUUID();
-buildCommands(bot);
+const commands: Array<ApplicationCommandDataResolvable> = buildCommands(bot);
 
 /** respond to slash commands */
 bot.on('interactionCreate', async (interaction: Interaction) => {
@@ -49,6 +49,7 @@ bot.on('interactionCreate', async (interaction: Interaction) => {
 /** set commands on bot ready */
 bot.on('clientReady', async () => {
     try {
+        await bot.application!.commands.set(commands);
         console.log('Commands Initiated!');
         await postDeploymentMessage(bot);
     } catch (error) {
