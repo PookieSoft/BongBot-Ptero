@@ -1,8 +1,8 @@
 /**
- * Tests the index.ts module initialization path where DISCORD_API_KEY is not set.
- * Needs a separate file because module-level code only runs once per Jest worker.
+ * Tests the standalone.ts startBot() path where DISCORD_API_KEY is not set.
+ * Needs a separate file because module-level env state only applies once per Jest worker.
  */
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect } from '@jest/globals';
 
 // Ensure DISCORD_API_KEY is NOT set for this test
 delete process.env.DISCORD_API_KEY;
@@ -69,9 +69,10 @@ jest.unstable_mockModule('../src/commands/build_commands.js', () => ({
     default: jest.fn((_bot: any) => {}),
 }));
 
-describe('index.ts - missing DISCORD_API_KEY', () => {
-    it('pushes DISCORD_API_KEY error and calls validateRequiredConfig with it', async () => {
-        await import('../src/index.js');
+describe('standalone - missing DISCORD_API_KEY', () => {
+    it('calls validateRequiredConfig when DISCORD_API_KEY is not set', async () => {
+        const { startBot } = await import('../src/standalone.js');
+        startBot();
 
         expect(mockValidateRequiredConfig).toHaveBeenCalled();
     });
