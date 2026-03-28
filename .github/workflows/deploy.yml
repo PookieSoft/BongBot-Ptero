@@ -153,12 +153,3 @@ jobs:
             ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
-
-      - name: SSH and Restart Service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            sudo systemctl restart bongbot-ptero
