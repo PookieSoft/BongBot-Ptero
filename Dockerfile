@@ -11,10 +11,10 @@ COPY ./package-lock.json /app/package-lock.json
 COPY ./tsconfig.json /app/tsconfig.json
 COPY ./esbuild.config.mjs /app/esbuild.config.mjs
 COPY ./postinstall.js /app/postinstall.js
-# ensure dist is clean before building
-RUN rm -rf /app/dist 
 
 RUN --mount=type=cache,target=/root/.npm npm install
+# ensure dist is clean before building - postinstall will build with tsc, but standalone is built with esbuild, so we need to ensure dist is clean before building standalone
+RUN rm -rf /app/dist 
 RUN npm run build
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/data
