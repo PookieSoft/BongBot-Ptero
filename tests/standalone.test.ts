@@ -111,8 +111,7 @@ describe('standalone', () => {
 
     beforeAll(async () => {
         Discord = await import('discord.js');
-        const { startBot } = await import('../src/standalone.js');
-        startBot();
+        await import('../src/standalone.js');
         mockClient = (Discord.Client as any).mock.results[0].value;
     });
 
@@ -396,8 +395,7 @@ describe('standalone', () => {
                 default: jest.fn(),
             }));
 
-            const { startBot } = await import('../src/standalone.js');
-            startBot();
+            await import('../src/standalone.js');
         });
 
         afterAll(() => {

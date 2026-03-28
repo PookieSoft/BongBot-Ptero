@@ -10,6 +10,9 @@ COPY ./package.json /app/package.json
 COPY ./package-lock.json /app/package-lock.json
 COPY ./tsconfig.json /app/tsconfig.json
 COPY ./esbuild.config.mjs /app/esbuild.config.mjs
+COPY ./postinstall.js /app/postinstall.js
+# ensure dist is clean before building
+RUN rm -rf /app/dist 
 
 RUN --mount=type=cache,target=/root/.npm npm install
 RUN npm run build
@@ -28,4 +31,4 @@ COPY --from=builder /app/node_modules/better-sqlite3/build/Release/better_sqlite
 
 ENV NODE_ENV=production
 
-CMD ["--no-deprecation", "--enable-source-maps", "/app/dist/index.js"]
+CMD ["--no-deprecation", "--enable-source-maps", "/app/dist/standalone.js"]
