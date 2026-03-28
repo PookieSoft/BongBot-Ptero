@@ -22,7 +22,7 @@ const isWatch = process.argv.includes("--watch");
 const minify = process.argv.includes("--minify");
 
 const buildOptions = {
-    entryPoints: ["src/index.ts"],
+    entryPoints: ["src/standalone.ts"],
     bundle: true,
     platform: "node",
     target: "esnext",

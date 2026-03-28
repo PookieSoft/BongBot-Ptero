@@ -10,9 +10,11 @@ COPY ./package.json /app/package.json
 COPY ./package-lock.json /app/package-lock.json
 COPY ./tsconfig.json /app/tsconfig.json
 COPY ./esbuild.config.mjs /app/esbuild.config.mjs
+COPY ./postinstall.js /app/postinstall.js
 
 RUN --mount=type=cache,target=/root/.npm npm install
-RUN cd node_modules/bongbot-core && npm install && npm run prepare
+# ensure dist is clean before building - postinstall will build with tsc, but standalone is built with esbuild, so we need to ensure dist is clean before building standalone
+RUN rm -rf /app/dist 
 RUN npm run build
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/data
@@ -29,4 +31,4 @@ COPY --from=builder /app/node_modules/better-sqlite3/build/Release/better_sqlite
 
 ENV NODE_ENV=production
 
-CMD ["--no-deprecation", "--enable-source-maps", "/app/dist/index.js"]
+CMD ["--no-deprecation", "--enable-source-maps", "/app/dist/standalone.js"]

@@ -4,10 +4,17 @@
     "description": "BongBot Pterodactyl Server Management",
     "main": "./dist/index.js",
     "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
     "scripts": {
         "build": "node esbuild.config.mjs --minify",
         "build-dev": "docker build -f ./Dockerfile --build-arg CORE_SOURCE=file:/core .. -t bongbot-ptero && docker run --rm --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero",
-        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent"
+        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent",
+        "postinstall": "node postinstall.js"
     },
     "dependencies": {
         "bongbot-core": "github:Mirasii/BongBot-Core#main"

@@ -7,11 +7,6 @@ import RemoveServer from './remove_server.js';
 import DatabasePool from '../../services/database_pool.js';
 import { Caller, LOGGER } from 'bongbot-core';
 
-function getAllowedHosts(): string[] {
-    const hosts = process.env.PTERODACTYL_ALLOWED_HOSTS;
-    return hosts ? hosts.split(',').map(h => h.trim()) : [];
-}
-
 export default {
     msgFlag: MessageFlags.Ephemeral,
     data: new SlashCommandBuilder()
@@ -96,7 +91,7 @@ export default {
     async execute(interaction: ChatInputCommandInteraction) {
         const subcommand = interaction.options.getSubcommand();
         const db = DatabasePool.getInstance().getConnection();
-        const caller = new Caller(getAllowedHosts());
+        const caller = new Caller();
         switch (subcommand) {
             case 'register':
                 return await new RegisterServer(db, caller).execute(interaction);
@@ -119,7 +114,7 @@ export default {
     setupCollector: (interaction: ChatInputCommandInteraction, message: Message) => { 
         return new ServerStatus(
             DatabasePool.getInstance().getConnection(), 
-            new Caller(getAllowedHosts()),
+            new Caller(),
             LOGGER.default
         ).setupCollector(interaction, message);
     },

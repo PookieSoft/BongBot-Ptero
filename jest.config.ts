@@ -55,6 +55,8 @@ const config: Config = {
     ],
   ],
 
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+
   // Limit worker memory to help with ts-jest memory leak
   // https://github.com/kulshekhar/ts-jest/issues/1967
   workerIdleMemoryLimit: '1024MB',

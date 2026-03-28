@@ -34,7 +34,7 @@ const mockBuildError = jest.fn();
 jest.unstable_mockModule('bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
-        constructor(public allowedHosts: string[] = []) {}
+        constructor() {}
         async validateServerSSRF(_url: string): Promise<void> {}
         async get(baseUrl: string, path: string, _?: null, headers?: Record<string, string>): Promise<any> {
             const response = await fetch(`${baseUrl}${path}`, { headers });
@@ -54,7 +54,7 @@ const { default: RegisterServer } = await import('../../../src/commands/pterodac
 const { Caller } = await import('bongbot-core');
 
 // Create instance with mock dependencies
-const caller = new Caller(['panel.example.com', 'custom-panel.com']);
+const caller = new Caller();
 const registerServerInstance = new RegisterServer(mockDb as any, caller as any);
 const registerServerExecute = registerServerInstance.execute.bind(registerServerInstance);
 

@@ -79,6 +79,9 @@ describe('list_servers command', () => {
             expect(mockGetServersByUserId).toHaveBeenCalledWith('test-user-123');
             expect(result).toHaveProperty('embeds');
             expect(result.embeds).toHaveLength(1);
+            if (!('data' in result.embeds[0])) {
+                fail('Expected embed to have data property');
+            }
             expect(result.embeds[0].data.title).toBe('🎮 Registered Servers');
             expect(result.embeds[0].data.color).toBe(0x0099ff);
             expect(result.embeds[0].data.fields).toHaveLength(2);
@@ -98,6 +101,9 @@ describe('list_servers command', () => {
             expect(mockGetServersByUserId).toHaveBeenCalledWith('test-user-123');
             expect(result).toHaveProperty('embeds');
             expect(result.embeds).toHaveLength(1);
+            if (!('data' in result.embeds[0])) {
+                fail('Expected embed to have data property');
+            }
             expect(result.embeds[0].data.title).toBe('🎮 Registered Servers');
             expect(result.embeds[0].data.description).toBe('You have no registered servers.');
             expect(result.embeds[0].data.fields).toBeUndefined();
@@ -121,6 +127,9 @@ describe('list_servers command', () => {
             );
 
             expect(result).toHaveProperty('embeds');
+            if (!('data' in result.embeds[0])) {
+                fail('Expected embed to have data property');
+            }
             expect(result.embeds[0].data.fields).toHaveLength(1);
             expect(result.embeds[0].data.fields![0].name).toBe('My Server');
             expect(result.embeds[0].data.fields![0].value).toBe('URL: https://panel.example.com');
@@ -176,7 +185,9 @@ describe('list_servers command', () => {
             const result = await listServersExecute(
                 mockInteraction as ChatInputCommandInteraction
             );
-
+            if (!('data' in result.embeds[0])) {
+                fail('Expected embed to have data property');
+            }
             expect(result.embeds[0].data.fields).toHaveLength(3);
             expect(result.embeds[0].data.fields![0].name).toBe('Production Server');
             expect(result.embeds[0].data.fields![1].name).toBe('Development Server');
@@ -189,7 +200,9 @@ describe('list_servers command', () => {
             const result = await listServersExecute(
                 mockInteraction as ChatInputCommandInteraction
             );
-
+            if (!('data' in result.embeds[0])) {
+                fail('Expected embed to have data property');
+            }
             expect(result.embeds[0].data.timestamp).toBeDefined();
         });
 

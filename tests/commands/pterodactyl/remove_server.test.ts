@@ -94,6 +94,9 @@ describe('remove_server command', () => {
             );
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
+            if (!('content' in result)) {
+                fail('Expected result to have content property');
+            }
             expect(result.content).toBe('Error removing server');
         });
 
