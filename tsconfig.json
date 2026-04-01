@@ -16,10 +16,7 @@
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
     "rootDir": "./src",
-    "types": ["jest", "node"],
-    "paths": {
-      "@pookiesoft/bongbot-core": ["./node_modules/@pookiesoft/bongbot-core/dist/index"]
-    }
+    "types": ["jest", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
