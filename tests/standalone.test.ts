@@ -48,6 +48,7 @@ jest.unstable_mockModule('discord.js', () => {
             on: jest.fn(),
             login: jest.fn(),
             user: { id: 'bot123' },
+            application: { commands: { set: jest.fn() } },
             channels: { fetch: jest.fn() },
             commands: new MockCollection(),
         })),
