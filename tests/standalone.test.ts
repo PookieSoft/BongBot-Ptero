@@ -329,7 +329,7 @@ describe('standalone', () => {
             expect(fakeChannel.send).toHaveBeenCalledWith({ embeds: [{ title: 'Deploy Card' }] });
             expect(mockGenerateCard).toHaveBeenCalledWith(
                 mockClient,
-                { repoOwner: 'Mirasii', repoName: 'BongBot-Ptero' }
+                { repoOwner: 'PookieSoft', repoName: 'BongBot-Ptero' }
             );
             expect(mockDeleteFn).toHaveBeenCalled();
             expect(mockDeleteDescFn).toHaveBeenCalled();
