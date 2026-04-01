@@ -35,6 +35,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: PookieSoft/BongBot-Ptero
           file: ./coverage/lcov.info
           flags: production
           name: production-coverage
