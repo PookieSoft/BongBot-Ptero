@@ -45,17 +45,17 @@ BongBot-Ptero is a microservice in the BongBot ecosystem, providing Pterodactyl 
    ```bash
    # Build and run the container
    docker build --secret id=NODE_AUTH_TOKEN,env=NODE_AUTH_TOKEN -t bongbot-ptero .
-   docker run --env-file .env bongbot-ptero
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero
    ```
 
    Or use the pre-built image:
    ```bash
    # Dev Build
-   docker run --env-file .env mirasi/bongbot-ptero-develop:latest
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs mirasi/bongbot-ptero-develop:latest
    ```
    ```bash
    # Release Build
-   docker run --env-file .env mirasi/bongbot-ptero:latest
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs mirasi/bongbot-ptero:latest
    ```
    **It is recommended you use docker for local development.**
 
