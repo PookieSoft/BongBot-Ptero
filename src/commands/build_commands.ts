@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import type { ExtendedClient } from 'bongbot-core';
+import type { ExtendedClient } from '@pookiesoft/bongbot-core';
 import pterodactyl from './pterodactyl/master.js';
 
 const commandsArray = [ pterodactyl ];

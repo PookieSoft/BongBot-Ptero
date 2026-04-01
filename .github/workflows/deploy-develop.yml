@@ -14,6 +14,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
+      packages: read
 
     steps:
       # Checkout the code
@@ -50,8 +51,9 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           npm ci
-          cd node_modules/bongbot-core && npm install && npm run prepare && cd ../..
           npm run test
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # --- Debug coverage files ---
       - name: Debug Coverage Files
@@ -246,6 +248,8 @@ jobs:
         with:
           context: .
           push: true
+          secrets: |
+            NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/bongbot-ptero-develop:pr-${{ github.event.pull_request.number }}
             ${{ secrets.DOCKERHUB_USERNAME }}/bongbot-ptero-develop:latest
@@ -344,6 +348,8 @@ jobs:
           context: .
           push: false
           load: true
+          secrets: |
+            NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: bongbot-local:dependabot-pr-${{ github.event.pull_request.number }}
 
       - name: Smoke Test Local Container (Dependabot)

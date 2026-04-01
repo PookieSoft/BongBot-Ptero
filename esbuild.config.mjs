@@ -20,8 +20,9 @@ const nativeModulePlugin = {
 
 const isWatch = process.argv.includes("--watch");
 const minify = process.argv.includes("--minify");
+const isLib = process.argv.includes("--lib");
 
-const buildOptions = {
+const standaloneBuildOptions = {
     entryPoints: ["src/standalone.ts"],
     bundle: true,
     platform: "node",
@@ -41,6 +42,22 @@ const buildOptions = {
         ".node": "copy",
     },
 };
+
+const libBuildOptions = {
+    entryPoints: ["src/index.ts"],
+    bundle: true,
+    platform: "node",
+    target: "esnext",
+    format: "esm",
+    outdir: "dist",
+    external: ["node:*", "discord.js", "better-sqlite3"],
+    plugins: [nativeModulePlugin],
+    minify: false,
+    sourcemap: true,
+    keepNames: true,
+};
+
+const buildOptions = isLib ? libBuildOptions : standaloneBuildOptions;
 
 // Copy better-sqlite3 native bindings after build
 async function copyNativeBindings() {
@@ -66,7 +83,7 @@ async function copyNativeBindings() {
 
 // Copy bongbot-core response files to dist
 function copyCoreResponses() {
-    const coreResponsesDir = "node_modules/bongbot-core/dist/responses";
+    const coreResponsesDir = "node_modules/@pookiesoft/bongbot-core/dist/responses";
     const destDir = "dist/responses";
 
     if (!existsSync(coreResponsesDir)) {

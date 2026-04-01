@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { buildError, Caller } from 'bongbot-core';
+import { buildError, Caller } from '@pookiesoft/bongbot-core';
 import Database from '../../helpers/database.js';
 import { fetchServers } from './shared/pterodactyl_api.js';
 

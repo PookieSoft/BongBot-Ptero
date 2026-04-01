@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import { ChatInputCommandInteraction, Message } from 'discord.js';
 
-// Mock bongbot-core
-jest.unstable_mockModule('bongbot-core', () => ({
+// Mock @pookiesoft/bongbot-core
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     Caller: jest.fn().mockImplementation(() => ({})),
     LOGGER: { default: { info: jest.fn(), debug: jest.fn(), error: jest.fn() } },
     buildError: jest.fn(),

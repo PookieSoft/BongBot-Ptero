@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction, ButtonInteraction, Message, StringSelectMenuInteraction } from 'discord.js';
 import Database, { PterodactylServer as DbPterodactylServer } from '../../helpers/database.js';
-import { buildError, Caller } from 'bongbot-core';
+import { buildError, Caller } from '@pookiesoft/bongbot-core';
 import { fetchServers, fetchServerResources, fetchAllServerResources, sendServerCommand } from './shared/pterodactyl_api.js';
 import { buildServerStatusEmbed } from './shared/server_status_embed.js';
 import { buildServerControlComponents, disableAllComponents } from './shared/server_control_components.js';
-import type { Logger } from 'bongbot-core';
+import type { Logger } from '@pookiesoft/bongbot-core';
 export default class ServerStatus {
     private db: Database;
     private caller: Caller;

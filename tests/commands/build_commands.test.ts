@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import { Collection } from 'discord.js';
-import type { ExtendedClient } from 'bongbot-core';
+import type { ExtendedClient } from '@pookiesoft/bongbot-core';
 
-// Mock the pterodactyl master command to avoid pulling in bongbot-core transitively
+// Mock the pterodactyl master command to avoid pulling in @pookiesoft/bongbot-core transitively
 jest.unstable_mockModule('../../src/commands/pterodactyl/master.js', () => ({
     default: { data: { name: 'pterodactyl', toJSON: () => ({ name: 'pterodactyl' }) } },
 }));

@@ -1,8 +1,8 @@
 # BongBot-Ptero
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/Mirasii/BongBot-Ptero/deploy.yml?label=Production%20Deploy&logo=github)
-![Coverage](https://codecov.io/gh/Mirasii/BongBot-Ptero/branch/main/graph/badge.svg)
-![License](https://img.shields.io/github/license/Mirasii/BongBot-Ptero?v=2)
+![Build Status](https://img.shields.io/github/actions/workflow/status/PookieSoft/BongBot-Ptero/deploy.yml?label=Production%20Deploy&logo=github)
+![Coverage](https://codecov.io/gh/PookieSoft/BongBot-Ptero/branch/main/graph/badge.svg)
+![License](https://img.shields.io/github/license/PookieSoft/BongBot-Ptero?v=2)
 ![Node Version](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen?logo=node.js)
 
 Welcome to BongBot-Ptero! 🤖
@@ -24,7 +24,7 @@ BongBot-Ptero is a microservice in the BongBot ecosystem, providing Pterodactyl 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Mirasii/BongBot-Ptero.git
+   git clone https://github.com/PookieSoft/BongBot-Ptero.git
    cd BongBot-Ptero
    ```
 
@@ -44,18 +44,18 @@ BongBot-Ptero is a microservice in the BongBot ecosystem, providing Pterodactyl 
 3. **Run with Docker**:
    ```bash
    # Build and run the container
-   docker build . -t bongbot
-   docker run --env-file .env bongbot
+   docker build --secret id=NODE_AUTH_TOKEN,env=NODE_AUTH_TOKEN -t bongbot-ptero .
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero
    ```
 
    Or use the pre-built image:
    ```bash
    # Dev Build
-   docker run --env-file .env mirasi/bongbot-ptero-develop:latest
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs mirasi/bongbot-ptero-develop:latest
    ```
    ```bash
    # Release Build
-   docker run --env-file .env mirasi/bongbot-ptero:latest
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs mirasi/bongbot-ptero:latest
    ```
    **It is recommended you use docker for local development.**
 
@@ -77,6 +77,32 @@ BongBot-Ptero is a microservice in the BongBot ecosystem, providing Pterodactyl 
   - `update` - Update server configuration
   - `remove` - Remove a registered server
   
+## Local Development Setup
+
+This project uses `@pookiesoft/bongbot-core` from GitHub Packages (private). You'll need a GitHub Personal Access Token to install dependencies.
+
+1. **Create a GitHub Classic PAT**:
+   - Go to **GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)**
+   - Generate a new token with the `read:packages` scope
+   - Ensure the token is authorized for the **PookieSoft** organization
+
+2. **Set the token in your environment**:
+   ```bash
+   echo 'export NODE_AUTH_TOKEN=ghp_yourTokenHere' >> ~/.bashrc
+   source ~/.bashrc
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+4. **Build and run locally with Docker**:
+   ```bash
+   docker build --secret id=NODE_AUTH_TOKEN,env=NODE_AUTH_TOKEN -t bongbot-ptero .
+   docker run --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero
+   ```
+
 ## Contributing
 
 1. Fork the repository

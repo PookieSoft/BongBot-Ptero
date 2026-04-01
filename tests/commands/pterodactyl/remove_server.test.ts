@@ -11,10 +11,10 @@ const mockDb = {
     close: mockDbClose,
 };
 
-// Mock bongbot-core
+// Mock @pookiesoft/bongbot-core
 const mockBuildError = jest.fn();
 
-jest.unstable_mockModule('bongbot-core', () => ({
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
 }));
 

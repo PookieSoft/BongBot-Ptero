@@ -48,6 +48,7 @@ jest.unstable_mockModule('discord.js', () => {
             on: jest.fn(),
             login: jest.fn(),
             user: { id: 'bot123' },
+            application: { commands: { set: jest.fn() } },
             channels: { fetch: jest.fn() },
             commands: new MockCollection(),
         })),
@@ -73,7 +74,7 @@ jest.unstable_mockModule('discord.js', () => {
     };
 });
 
-// Mock bongbot-core
+// Mock @pookiesoft/bongbot-core
 const mockBuildUnknownError = jest.fn((err: any) => ({ content: `Error: ${err.message}`, isError: true }));
 const mockGenerateCard = jest.fn(async (client: any, config: { repoOwner: string; repoName: string }) => ({
     title: 'Fake Card'
@@ -81,7 +82,7 @@ const mockGenerateCard = jest.fn(async (client: any, config: { repoOwner: string
 const mockValidateRequiredConfig = jest.fn();
 const mockLoggerLog = jest.fn();
 
-jest.unstable_mockModule('bongbot-core', () => ({
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     LOGGER: {
         log: mockLoggerLog,
         default: { info: jest.fn(), debug: jest.fn(), error: jest.fn() },
@@ -328,7 +329,7 @@ describe('standalone', () => {
             expect(fakeChannel.send).toHaveBeenCalledWith({ embeds: [{ title: 'Deploy Card' }] });
             expect(mockGenerateCard).toHaveBeenCalledWith(
                 mockClient,
-                { repoOwner: 'Mirasii', repoName: 'BongBot-Ptero' }
+                { repoOwner: 'PookieSoft', repoName: 'BongBot-Ptero' }
             );
             expect(mockDeleteFn).toHaveBeenCalled();
             expect(mockDeleteDescFn).toHaveBeenCalled();
@@ -383,7 +384,7 @@ describe('standalone', () => {
                 MessageFlags: { Loading: 1 << 7, Ephemeral: 1 << 6 },
                 Collection: Map,
             }));
-            jest.unstable_mockModule('bongbot-core', () => ({
+            jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
                 LOGGER: { log: jest.fn(), default: { info: jest.fn(), debug: jest.fn(), error: jest.fn() } },
                 buildError: jest.fn(),
                 buildUnknownError: jest.fn(),

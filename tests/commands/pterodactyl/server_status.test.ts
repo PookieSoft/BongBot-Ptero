@@ -65,10 +65,10 @@ const mockDb = {
     addServer: jest.fn(),
 };
 
-// Mock bongbot-core
+// Mock @pookiesoft/bongbot-core
 const mockBuildError = jest.fn<() => Promise<any>>();
 
-jest.unstable_mockModule('bongbot-core', () => ({
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
         constructor(public allowedHosts: string[] = []) {}
@@ -88,7 +88,7 @@ jest.unstable_mockModule('bongbot-core', () => ({
 
 // Import after mocking and MSW setup
 const { default: ServerStatus } = await import('../../../src/commands/pterodactyl/server_status.js');
-const { Caller } = await import('bongbot-core');
+const { Caller } = await import('@pookiesoft/bongbot-core');
 
 // Create instance with mock dependencies
 const caller = new Caller();

@@ -32,10 +32,10 @@ const mockDb = {
     close: mockDbClose,
 };
 
-// Mock bongbot-core
+// Mock @pookiesoft/bongbot-core
 const mockBuildError = jest.fn();
 
-jest.unstable_mockModule('bongbot-core', () => ({
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
         constructor() {}
@@ -55,7 +55,7 @@ jest.unstable_mockModule('bongbot-core', () => ({
 
 // Import after mocking
 const { default: UpdateServer } = await import('../../../src/commands/pterodactyl/update_server.js');
-const { Caller } = await import('bongbot-core');
+const { Caller } = await import('@pookiesoft/bongbot-core');
 
 // Create instance with mock dependencies
 const caller = new Caller();
