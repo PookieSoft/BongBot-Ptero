@@ -1,6 +1,5 @@
 import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
-// 1. Define the mock FIRST
 jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     startWithFunctions: jest.fn(async () => ({})),
     buildError: jest.fn(),
@@ -15,14 +14,11 @@ describe('Standalone Bot', () => {
     let coreMock: any;
 
     beforeAll(async () => {
-        // 2. Import the MOCK version of the module dynamically
         coreMock = await import('@pookiesoft/bongbot-core');
-        // 3. Import your source file
         await import('../src/standalone.js');
     });
 
     it('should have called bongbot-core with the correct arguments', () => {
-        // 4. Assert against the version from coreMock
         expect(coreMock.startWithFunctions).toHaveBeenCalledWith(
             'PookieSoft',
             'BongBot-Ptero',
