@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits, MessageFlags } from 'discord.js';
 import type { Message, InteractionReplyOptions, CommandInteraction, Interaction, ApplicationCommandDataResolvable } from 'discord.js';
-import type { ExtendedClient } from 'bongbot-core';
-import { LOGGER, buildUnknownError, generateCard, validateRequiredConfig } from 'bongbot-core';
+import type { ExtendedClient } from '@pookiesoft/bongbot-core';
+import { LOGGER, buildUnknownError, generateCard, validateRequiredConfig } from '@pookiesoft/bongbot-core';
 import crypto from 'crypto';
 import buildCommands from './commands/build_commands.js';
 

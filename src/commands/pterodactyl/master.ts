@@ -5,7 +5,7 @@ import ServerStatus from './server_status.js';
 import UpdateServer from './update_server.js';
 import RemoveServer from './remove_server.js';
 import DatabasePool from '../../services/database_pool.js';
-import { Caller, LOGGER } from 'bongbot-core';
+import { Caller, LOGGER } from '@pookiesoft/bongbot-core';
 
 export default {
     msgFlag: MessageFlags.Ephemeral,

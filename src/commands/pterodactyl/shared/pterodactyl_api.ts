@@ -1,4 +1,4 @@
-import { Caller } from 'bongbot-core';
+import { Caller } from '@pookiesoft/bongbot-core';
 
 export async function fetchServers(caller: Caller, serverUrl: string, apiKey: string): Promise<PterodactylServer[]> {
     await caller.validateServerSSRF(serverUrl);

@@ -66,7 +66,7 @@ async function copyNativeBindings() {
 
 // Copy bongbot-core response files to dist
 function copyCoreResponses() {
-    const coreResponsesDir = "node_modules/bongbot-core/dist/responses";
+    const coreResponsesDir = "node_modules/@pookiesoft/bongbot-core/dist/responses";
     const destDir = "dist/responses";
 
     if (!existsSync(coreResponsesDir)) {

@@ -2,19 +2,16 @@ FROM node:24-slim AS builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y git --no-install-recommends && rm -rf /var/lib/apt/lists/*
-RUN git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-
 COPY ./src /app/src
 COPY ./package.json /app/package.json
 COPY ./package-lock.json /app/package-lock.json
 COPY ./tsconfig.json /app/tsconfig.json
 COPY ./esbuild.config.mjs /app/esbuild.config.mjs
-COPY ./postinstall.js /app/postinstall.js
+COPY ./.npmrc /app/.npmrc
 
-RUN --mount=type=cache,target=/root/.npm npm install
-# ensure dist is clean before building - postinstall will build with tsc, but standalone is built with esbuild, so we need to ensure dist is clean before building standalone
-RUN rm -rf /app/dist 
+RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
+    export NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) && npm ci
+
 RUN npm run build
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/data

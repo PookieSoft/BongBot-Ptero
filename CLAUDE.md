@@ -3,13 +3,13 @@
 # Project: BongBot-Ptero
 
 ## Project Description
-A Discord Bot built on NodeJS in TypeScript for Pterodactyl server management. Shared infrastructure (helpers, loggers, config, responses) lives in the `bongbot-core` package.
+A Discord Bot built on NodeJS in TypeScript for Pterodactyl server management. Shared infrastructure (helpers, loggers, config, responses) lives in the `@pookiesoft/bongbot-core` package.
 
 ## Tech Stack:
 - Bot: TypeScript
 - Database: SQLite
 - Testing: jest, ts-jest
-- Core Library: bongbot-core
+- Core Library: @pookiesoft/bongbot-core
 
 ## Code Conventions
 - 4-space indentation
@@ -34,7 +34,7 @@ A Discord Bot built on NodeJS in TypeScript for Pterodactyl server management. S
 - data - .db files for SQLite usage (data folder is in gitignore and shouldn't be committed)
 
 ## Shared Code (bongbot-core)
-The following are imported from `bongbot-core` and should NOT be duplicated locally:
+The following are imported from `@pookiesoft/bongbot-core` and should NOT be duplicated locally:
 - `Caller` - HTTP client wrapper with SSRF protection
 - `buildError`, `buildUnknownError` - Standardized error response formatting
 - `EMBED_BUILDER` - Discord embed construction utilities
@@ -44,7 +44,7 @@ The following are imported from `bongbot-core` and should NOT be duplicated loca
 - `ExtendedClient`, `Logger` - TypeScript interfaces
 
 ## Important Notes
-- API calls should use `Caller` from `bongbot-core`
+- API calls should use `Caller` from `@pookiesoft/bongbot-core`
 - New components should have an accompanying test file and aim for 100% coverage
 - Dependency Injection should be used to reduce individual complexity
 - `Caller` constructor accepts `allowedHosts: string[]` - pass from `PTERODACTYL_ALLOWED_HOSTS` env var

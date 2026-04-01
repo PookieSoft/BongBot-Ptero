@@ -1,5 +1,5 @@
 {
-    "name": "bongbot-ptero",
+    "name": "@pookiesoft/bongbot-ptero",
     "version": "0.1.0",
     "description": "BongBot Pterodactyl Server Management",
     "main": "./dist/index.js",
@@ -10,14 +10,22 @@
             "import": "./dist/index.js"
         }
     },
+    "files": [
+        "dist",
+        "!dist/standalone.*"
+    ],
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
     "scripts": {
         "build": "node esbuild.config.mjs --minify",
-        "build-dev": "docker build -f ./Dockerfile --build-arg CORE_SOURCE=file:/core .. -t bongbot-ptero && docker run --rm --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero",
-        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent",
-        "postinstall": "node postinstall.js"
+        "build:lib": "npx tsc",
+        "prepublishOnly": "npm run build:lib",
+        "build-dev": "docker build --secret id=NODE_AUTH_TOKEN,env=NODE_AUTH_TOKEN -t bongbot-ptero . && docker run --rm --env-file .env --volume ./data:/app/data --volume ./logs:/app/logs bongbot-ptero",
+        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --coverage --outputFile=report.json --passWithNoTests --silent"
     },
     "dependencies": {
-        "bongbot-core": "github:PookieSoft/BongBot-Core#main"
+        "@pookiesoft/bongbot-core": "^1.3.1"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.13",

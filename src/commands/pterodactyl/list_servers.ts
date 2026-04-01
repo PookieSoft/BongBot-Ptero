@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { buildError } from 'bongbot-core';
+import { buildError } from '@pookiesoft/bongbot-core';
 import Database from '../../helpers/database.js';
 
 
