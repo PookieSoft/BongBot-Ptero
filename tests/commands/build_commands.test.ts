@@ -6,7 +6,11 @@ import type { ExtendedClient } from '@pookiesoft/bongbot-core';
 jest.unstable_mockModule('../../src/commands/pterodactyl/master.js', () => ({
     default: { data: { name: 'pterodactyl', toJSON: () => ({ name: 'pterodactyl' }) } },
 }));
-
+jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+    commandBuilder: jest.fn((client: ExtendedClient, commands: any[]) => {
+        commands.forEach(cmd => client.commands.set(cmd.data.name, cmd));
+    }),
+}));
 // Import after mocks are set up
 const { default: buildCommands } = await import('../../src/commands/build_commands.js');
 
