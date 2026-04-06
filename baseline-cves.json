@@ -61,7 +61,7 @@
   },
   {
     "id": "CVE-2026-4046",
-    "severity": "HIGH",
+    "severity": "MEDIUM",
     "pkg": "libc6"
   },
   {
