@@ -16,7 +16,7 @@ RUN npm run build
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/data
 
-FROM gcr.io/distroless/nodejs24-debian12 AS release
+FROM gcr.io/distroless/nodejs24-debian13 AS release
 
 WORKDIR /app
 
