@@ -9,6 +9,8 @@ jobs:
   deploy:
     environment: Prod
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.get_version.outputs.new_tag }}
     permissions:
       contents: write
       pull-requests: read
@@ -156,3 +158,33 @@ jobs:
             ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
+
+  publish:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+
+      - name: Install Dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Version
+        run: npm version "${{ needs.deploy.outputs.new_tag }}" --no-git-tag-version --allow-same-version
+
+      - name: Publish Package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
