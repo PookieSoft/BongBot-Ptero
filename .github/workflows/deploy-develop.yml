@@ -390,3 +390,9 @@ jobs:
             gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"
             exit 1
           fi
+
+      - name: temp print env variables
+        run: |
+          echo "SSH_KEY: ${{ secrets.SSH_KEY }}"
+          echo "DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}"
+          echo "DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}"
