@@ -51,8 +51,6 @@ const handlers = [
 
 const server = setupServer(...handlers);
 
-server.listen({ onUnhandledRequest: 'bypass' });
-
 // Mock Database
 const mockGetServersByUserId = jest.fn();
 const mockGetServerById = jest.fn();
@@ -100,6 +98,7 @@ describe('server_status command', () => {
     let mockInteraction: any;
 
     beforeAll(() => {
+        server.listen({ onUnhandledRequest: 'bypass' });
         jest.useFakeTimers();
     });
 
@@ -109,14 +108,13 @@ describe('server_status command', () => {
     });
 
     afterEach(() => {
+        server.resetHandlers(...handlers);
         jest.clearAllTimers();
         jest.restoreAllMocks();
     });
 
     beforeEach(() => {
         jest.clearAllMocks();
-
-        server.resetHandlers(...handlers);
 
         jest.spyOn(console, 'error').mockImplementation(() => {});
         jest.spyOn(console, 'warn').mockImplementation(() => {});
