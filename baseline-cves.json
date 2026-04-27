@@ -53,5 +53,15 @@
     "id": "CVE-2026-4438",
     "severity": "MEDIUM",
     "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-5450",
+    "severity": "MEDIUM",
+    "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-5928",
+    "severity": "MEDIUM",
+    "pkg": "libc6"
   }
 ]
