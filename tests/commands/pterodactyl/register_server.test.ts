@@ -112,9 +112,7 @@ describe('register_server command', () => {
         it('should successfully register a new server', async () => {
             mockAddServer.mockReturnValue(42);
 
-            const result = await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockAddServer).toHaveBeenCalledWith({
                 userId: 'test-user-123',
@@ -142,9 +140,7 @@ describe('register_server command', () => {
             mockInteraction.options = { getString } as any;
             mockAddServer.mockReturnValue(1);
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockAddServer).toHaveBeenCalledWith({
                 userId: 'test-user-123',
@@ -166,25 +162,19 @@ describe('register_server command', () => {
                 isError: true,
             });
 
-            const result = await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
             expect((result as any).isError).toBe(true);
         });
 
         it('should handle duplicate server error', async () => {
-            const duplicateError = new Error(
-                'This server is already registered for this user.'
-            );
+            const duplicateError = new Error('This server is already registered for this user.');
             mockAddServer.mockImplementation(() => {
                 throw duplicateError;
             });
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, duplicateError);
         });
@@ -201,9 +191,7 @@ describe('register_server command', () => {
                 isError: true,
             });
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
         });
@@ -226,9 +214,7 @@ describe('register_server command', () => {
 
             mockInteraction.options = { getString } as any;
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(getString).toHaveBeenCalledWith('server_url', true);
             expect(getString).toHaveBeenCalledWith('api_key', true);
@@ -249,14 +235,12 @@ describe('register_server command', () => {
                 })
             );
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('Failed to connect to the Pterodactyl panel')
+                    message: expect.stringContaining('Failed to connect to the Pterodactyl panel'),
                 })
             );
             expect(mockAddServer).not.toHaveBeenCalled();
@@ -274,14 +258,12 @@ describe('register_server command', () => {
 
             mockInteraction.options = { getString } as any;
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: 'Server name cannot be empty or whitespace.'
+                    message: 'Server name cannot be empty or whitespace.',
                 })
             );
             expect(mockAddServer).not.toHaveBeenCalled();
@@ -299,14 +281,12 @@ describe('register_server command', () => {
 
             mockInteraction.options = { getString } as any;
 
-            await registerServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await registerServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: 'Server name cannot be empty or whitespace.'
+                    message: 'Server name cannot be empty or whitespace.',
                 })
             );
             expect(mockAddServer).not.toHaveBeenCalled();

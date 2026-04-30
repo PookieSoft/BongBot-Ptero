@@ -118,9 +118,7 @@ describe('update_server command', () => {
 
     describe('execute function', () => {
         it('should update server URL', async () => {
-            const result = await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('content' in result)) {
                 fail('Expected result to have content, but it had embeds/files instead');
             }
@@ -133,16 +131,16 @@ describe('update_server command', () => {
         });
 
         it('should update API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation((name: string) => {
-                if (name === 'server_name') return 'Test Server';
-                if (name === 'server_url') return null;
-                if (name === 'api_key') return 'new-api-key-123';
-                return null;
-            });
-
-            const result = await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
+            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+                (name: string) => {
+                    if (name === 'server_name') return 'Test Server';
+                    if (name === 'server_url') return null;
+                    if (name === 'api_key') return 'new-api-key-123';
+                    return null;
+                }
             );
+
+            const result = await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('content' in result)) {
                 fail('Expected result to have content, but it had embeds/files instead');
             }
@@ -153,16 +151,16 @@ describe('update_server command', () => {
         });
 
         it('should update both URL and API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation((name: string) => {
-                if (name === 'server_name') return 'Test Server';
-                if (name === 'server_url') return testServerUrl;
-                if (name === 'api_key') return 'new-api-key-123';
-                return null;
-            });
-
-            const result = await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
+            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+                (name: string) => {
+                    if (name === 'server_name') return 'Test Server';
+                    if (name === 'server_url') return testServerUrl;
+                    if (name === 'api_key') return 'new-api-key-123';
+                    return null;
+                }
             );
+
+            const result = await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('content' in result)) {
                 fail('Expected result to have content, but it had embeds/files instead');
             }
@@ -175,16 +173,16 @@ describe('update_server command', () => {
         });
 
         it('should trim server name, URL, and API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation((name: string) => {
-                if (name === 'server_name') return '  Test Server  ';
-                if (name === 'server_url') return `  ${testServerUrl}  `;
-                if (name === 'api_key') return '  new-api-key-123  ';
-                return null;
-            });
-
-            await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
+            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+                (name: string) => {
+                    if (name === 'server_name') return '  Test Server  ';
+                    if (name === 'server_url') return `  ${testServerUrl}  `;
+                    if (name === 'api_key') return '  new-api-key-123  ';
+                    return null;
+                }
             );
+
+            await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockUpdateServer).toHaveBeenCalledWith('test-user-123', 'Test Server', {
                 serverUrl: testServerUrl,
@@ -193,12 +191,16 @@ describe('update_server command', () => {
         });
 
         it('should handle error when no fields provided', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation((name: string) => {
-                if (name === 'server_name') return 'Test Server';
-                return null;
-            });
+            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+                (name: string) => {
+                    if (name === 'server_name') return 'Test Server';
+                    return null;
+                }
+            );
 
-            const testError = new Error('No fields to update. Please provide at least one field (server_url or api_key).');
+            const testError = new Error(
+                'No fields to update. Please provide at least one field (server_url or api_key).'
+            );
             mockUpdateServer.mockImplementation(() => {
                 throw testError;
             });
@@ -208,9 +210,7 @@ describe('update_server command', () => {
                 ephemeral: true,
             });
 
-            await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
         });
@@ -223,16 +223,14 @@ describe('update_server command', () => {
                 ephemeral: true,
             });
 
-            const result = await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('content' in result)) {
                 fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('not found')
+                    message: expect.stringContaining('not found'),
                 })
             );
             expect(result.content).toContain('Error');
@@ -249,15 +247,12 @@ describe('update_server command', () => {
                 ephemeral: true,
             });
 
-            const result = await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('content' in result)) {
                 fail('Expected result to have content, but it had embeds/files instead');
             }
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
             expect(result.content).toBe('Error updating server');
-            
         });
 
         it('should handle pterodactyl API validation failure', async () => {
@@ -267,30 +262,28 @@ describe('update_server command', () => {
                 })
             );
 
-            await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('Failed to connect to the Pterodactyl panel')
+                    message: expect.stringContaining('Failed to connect to the Pterodactyl panel'),
                 })
             );
             expect(mockUpdateServer).not.toHaveBeenCalled();
         });
 
         it('should remove trailing slash from server URL', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation((name: string) => {
-                if (name === 'server_name') return 'Test Server';
-                if (name === 'server_url') return `${testServerUrl}/`;
-                if (name === 'api_key') return null;
-                return null;
-            });
-
-            await updateServerExecute(
-                mockInteraction as ChatInputCommandInteraction
+            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+                (name: string) => {
+                    if (name === 'server_name') return 'Test Server';
+                    if (name === 'server_url') return `${testServerUrl}/`;
+                    if (name === 'api_key') return null;
+                    return null;
+                }
             );
+
+            await updateServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockUpdateServer).toHaveBeenCalledWith('test-user-123', 'Test Server', {
                 serverUrl: testServerUrl,

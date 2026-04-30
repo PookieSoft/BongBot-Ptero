@@ -121,9 +121,7 @@ describe('Database class', () => {
                 apiKey: 'test-api-key',
             };
 
-            expect(() => db.addServer(server)).toThrow(
-                'This server is already registered for this user.'
-            );
+            expect(() => db.addServer(server)).toThrow('This server is already registered for this user.');
         });
 
         it('should handle different server URLs for same user', () => {
@@ -164,9 +162,7 @@ describe('Database class', () => {
 
             const result = db.getServerById(1);
 
-            expect(mockPrepare).toHaveBeenCalledWith(
-                'SELECT * FROM pterodactyl_servers WHERE id = ?'
-            );
+            expect(mockPrepare).toHaveBeenCalledWith('SELECT * FROM pterodactyl_servers WHERE id = ?');
             expect(mockGet).toHaveBeenCalledWith(1);
             expect(result).toEqual({
                 ...mockServer,
@@ -213,9 +209,7 @@ describe('Database class', () => {
 
             const result = db.getServersByUserId('user123');
 
-            expect(mockPrepare).toHaveBeenCalledWith(
-                'SELECT * FROM pterodactyl_servers WHERE userId = ?'
-            );
+            expect(mockPrepare).toHaveBeenCalledWith('SELECT * FROM pterodactyl_servers WHERE userId = ?');
             expect(mockAll).toHaveBeenCalledWith('user123');
             expect(result).toEqual([
                 { ...mockServers[0], apiKey: 'key1' },
@@ -271,7 +265,12 @@ describe('Database class', () => {
             });
 
             expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining('UPDATE pterodactyl_servers'));
-            expect(mockRun).toHaveBeenCalledWith('https://new-panel.example.com', expect.any(String), 'user123', 'Test Server');
+            expect(mockRun).toHaveBeenCalledWith(
+                'https://new-panel.example.com',
+                expect.any(String),
+                'user123',
+                'Test Server'
+            );
         });
 
         it('should throw error when server not found', () => {

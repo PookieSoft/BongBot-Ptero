@@ -2,9 +2,8 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { buildError } from '@pookiesoft/bongbot-core';
 import Database from '../../helpers/database.js';
 
-
 export default class ListServers {
-    private db : Database;
+    private db: Database;
     constructor(db: Database) {
         this.db = db;
     }
@@ -27,7 +26,6 @@ export default class ListServers {
                 });
             });
             return { embeds: [embed], ephemeral: true };
-
         } catch (error) {
             return await buildError(interaction, error);
         }

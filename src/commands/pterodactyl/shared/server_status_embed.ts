@@ -1,7 +1,11 @@
 import { EmbedBuilder } from 'discord.js';
 import { PterodactylServer, ServerResources } from './pterodactyl_api.js';
 
-export function buildServerStatusEmbed(servers: PterodactylServer[], resources: (ServerResources | null)[], description?: string): EmbedBuilder {
+export function buildServerStatusEmbed(
+    servers: PterodactylServer[],
+    resources: (ServerResources | null)[],
+    description?: string
+): EmbedBuilder {
     const embed = new EmbedBuilder()
         .setColor('#0099ff') // TODO: [TECHNICAL_DEBT 3.3] Extract to shared EMBED_COLORS constant (duplicated in list_servers.ts)
         .setTitle('🎮 Game Server Status')

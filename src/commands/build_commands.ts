@@ -3,5 +3,5 @@ import { commandBuilder } from '@pookiesoft/bongbot-core';
 import pterodactyl from './pterodactyl/master.js';
 
 export default function buildCommands(client: ExtendedClient) {
-    return commandBuilder(client, [ pterodactyl ]);
+    return commandBuilder(client, [pterodactyl]);
 }

@@ -6,8 +6,8 @@ jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     Caller: jest.fn(),
     LOGGER: { log: jest.fn(), default: { info: jest.fn() } },
     commandBuilder: jest.fn((client: any, commands: any[]) => {
-        commands.forEach(cmd => client.commands.set(cmd.data.name, cmd));
-    }), 
+        commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
+    }),
 }));
 
 describe('Standalone Bot', () => {
@@ -19,11 +19,8 @@ describe('Standalone Bot', () => {
     });
 
     it('should have called bongbot-core with the correct arguments', () => {
-        expect(coreMock.startWithFunctions).toHaveBeenCalledWith(
-            'PookieSoft',
-            'BongBot-Ptero',
-            expect.any(Function),
-            ['setupCollector']
-        );
+        expect(coreMock.startWithFunctions).toHaveBeenCalledWith('PookieSoft', 'BongBot-Ptero', expect.any(Function), [
+            'setupCollector',
+        ]);
     });
 });

@@ -1,7 +1,12 @@
 import { ChatInputCommandInteraction, ButtonInteraction, Message, StringSelectMenuInteraction } from 'discord.js';
 import Database, { PterodactylServer as DbPterodactylServer } from '../../helpers/database.js';
 import { buildError, Caller } from '@pookiesoft/bongbot-core';
-import { fetchServers, fetchServerResources, fetchAllServerResources, sendServerCommand } from './shared/pterodactyl_api.js';
+import {
+    fetchServers,
+    fetchServerResources,
+    fetchAllServerResources,
+    sendServerCommand,
+} from './shared/pterodactyl_api.js';
 import { buildServerStatusEmbed } from './shared/server_status_embed.js';
 import { buildServerControlComponents, disableAllComponents } from './shared/server_control_components.js';
 import type { Logger } from '@pookiesoft/bongbot-core';
@@ -26,21 +31,27 @@ export default class ServerStatus {
 
             const serverName = interaction.options.getString('server_name');
             if (userServers.length > 1 && !serverName) {
-                const serverList = userServers.map(s => `• ${s.serverName}`).join('\n');
-                throw new Error(`You have multiple registered servers. Please specify which one to query using the \`server_name\` option. Your registered servers:\n\n${serverList}`);
+                const serverList = userServers.map((s) => `• ${s.serverName}`).join('\n');
+                throw new Error(
+                    `You have multiple registered servers. Please specify which one to query using the \`server_name\` option. Your registered servers:\n\n${serverList}`
+                );
             }
 
-            const selectedServer = userServers.length === 1
-                ? userServers[0]
-                : userServers.find(s => s.serverName === serverName);
+            const selectedServer =
+                userServers.length === 1 ? userServers[0] : userServers.find((s) => s.serverName === serverName);
 
             if (!selectedServer) {
-                const serverList = userServers.map(s => `• ${s.serverName}`).join('\n');
+                const serverList = userServers.map((s) => `• ${s.serverName}`).join('\n');
                 throw new Error(`No server found with name "${serverName}". Your registered servers:\n\n${serverList}`);
             }
 
             const servers = await fetchServers(this.caller, selectedServer.serverUrl, selectedServer.apiKey);
-            const resources = await fetchAllServerResources(this.caller, servers, selectedServer.serverUrl, selectedServer.apiKey);
+            const resources = await fetchAllServerResources(
+                this.caller,
+                servers,
+                selectedServer.serverUrl,
+                selectedServer.apiKey
+            );
 
             const embed = buildServerStatusEmbed(servers, resources);
             const components = buildServerControlComponents(servers, resources, selectedServer.id!);
@@ -55,7 +66,9 @@ export default class ServerStatus {
     }
 
     async setupCollector(interaction: ChatInputCommandInteraction, message: Message): Promise<void> {
-        if (!('manage' === interaction.options.getSubcommand())) { return; }
+        if (!('manage' === interaction.options.getSubcommand())) {
+            return;
+        }
         // TODO: [BUGS 4.2 / TECHNICAL_DEBT 3.1] Add idle timeout (e.g. idle: 300000) and extract 600000 to a named constant
         const collector = message.createMessageComponentCollector({ time: 600000 });
 
@@ -93,10 +106,12 @@ export default class ServerStatus {
                 await this.handleServerAction(componentInteraction, dbServer as ValidatedDbServer, identifier, action);
             } catch (error) {
                 this._logger.error(error as Error, interaction);
-                await componentInteraction.followUp({
-                    content: '❌ An error occurred processing your request.',
-                    ephemeral: true,
-                }).catch(() => {}); // TODO: [BUGS 1.3] Log the error instead of silently swallowing
+                await componentInteraction
+                    .followUp({
+                        content: '❌ An error occurred processing your request.',
+                        ephemeral: true,
+                    })
+                    .catch(() => {}); // TODO: [BUGS 1.3] Log the error instead of silently swallowing
 
                 if (dbServerId) {
                     await this.refreshStatus(componentInteraction, parseInt(dbServerId));
@@ -127,15 +142,18 @@ export default class ServerStatus {
 
     private getActionMessage(action: string, identifier: string): string {
         const actionText = action === 'start' ? '▶️ Starting' : '🔄 Restarting';
-        const stopMessage = identifier === 'all'
-            ? '⏹️ Stopping all servers... Status will update automatically.'
-            : '⏹️ Stopping server... Status will update automatically.';
+        const stopMessage =
+            identifier === 'all'
+                ? '⏹️ Stopping all servers... Status will update automatically.'
+                : '⏹️ Stopping server... Status will update automatically.';
 
-        return {
-            stop: stopMessage,
-            start: `${actionText} server... Status will update automatically.`,
-            restart: `${actionText} server... Status will update automatically.`,
-        }[action] || 'Processing your request...';
+        return (
+            {
+                stop: stopMessage,
+                start: `${actionText} server... Status will update automatically.`,
+                restart: `${actionText} server... Status will update automatically.`,
+            }[action] || 'Processing your request...'
+        );
     }
 
     private async handleServerAction(
@@ -148,8 +166,17 @@ export default class ServerStatus {
             const servers = await fetchServers(this.caller, dbServer.serverUrl, dbServer.apiKey);
             // TODO: [BUGS 2.4] Add concurrency limiting (e.g. p-limit) and backoff on 429 responses
             const stopPromises = servers.map((server) =>
-                sendServerCommand(this.caller, server.attributes.identifier, 'stop', dbServer.serverUrl, dbServer.apiKey)
-                    .then((success) => ({ identifier: server.attributes.identifier, name: server.attributes.name, success }))
+                sendServerCommand(
+                    this.caller,
+                    server.attributes.identifier,
+                    'stop',
+                    dbServer.serverUrl,
+                    dbServer.apiKey
+                ).then((success) => ({
+                    identifier: server.attributes.identifier,
+                    name: server.attributes.name,
+                    success,
+                }))
             );
             const results = await Promise.allSettled(stopPromises);
 
@@ -158,7 +185,8 @@ export default class ServerStatus {
 
             for (const result of results) {
                 // TODO: [BUGS 3.3] Use a type guard (result.status === 'fulfilled') instead of unsafe cast
-                const value = (result as PromiseFulfilledResult<{ identifier: string; name: string; success: boolean }>).value;
+                const value = (result as PromiseFulfilledResult<{ identifier: string; name: string; success: boolean }>)
+                    .value;
                 if (!value.success) {
                     failedServers.push(value.name);
                     this._logger.debug(`Failed to stop server: ${value.identifier} (${value.name})`);
@@ -175,12 +203,7 @@ export default class ServerStatus {
             }
 
             if (successfulIdentifiers.length > 0) {
-                await this.pollUntilStateChange(
-                    componentInteraction,
-                    successfulIdentifiers,
-                    'offline',
-                    dbServer
-                );
+                await this.pollUntilStateChange(componentInteraction, successfulIdentifiers, 'offline', dbServer);
             } else {
                 await this.refreshStatus(componentInteraction, dbServer.id);
             }
@@ -204,12 +227,7 @@ export default class ServerStatus {
 
             const expectedState = action === 'start' ? 'running' : action === 'stop' ? 'offline' : 'running';
 
-            await this.pollUntilStateChange(
-                componentInteraction,
-                [identifier],
-                expectedState,
-                dbServer
-            );
+            await this.pollUntilStateChange(componentInteraction, [identifier], expectedState, dbServer);
         }
     }
 
@@ -231,9 +249,7 @@ export default class ServerStatus {
             attempts++;
 
             const resources = await Promise.all(
-                identifiers.map((id) =>
-                    fetchServerResources(this.caller, id, dbServer.serverUrl, dbServer.apiKey)
-                )
+                identifiers.map((id) => fetchServerResources(this.caller, id, dbServer.serverUrl, dbServer.apiKey))
             );
 
             const allReached = resources.every((r) => {
@@ -251,13 +267,16 @@ export default class ServerStatus {
         };
 
         const done = await checkStatus();
-        if (done) { return; }
+        if (done) {
+            return;
+        }
 
         const pollInterval = setInterval(async () => {
             const done = await checkStatus();
-            if (done) { clearInterval(pollInterval); }
+            if (done) {
+                clearInterval(pollInterval);
+            }
         }, interval);
-
     }
 
     private async refreshStatus(

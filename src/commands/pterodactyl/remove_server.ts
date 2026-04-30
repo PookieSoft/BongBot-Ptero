@@ -3,7 +3,7 @@ import { buildError } from '@pookiesoft/bongbot-core';
 import Database from '../../helpers/database.js';
 
 export default class RemoveServer {
-    private db : Database;
+    private db: Database;
     constructor(db: Database) {
         this.db = db;
     }
@@ -16,7 +16,7 @@ export default class RemoveServer {
 
             return {
                 content: `Successfully removed server **${serverName}**!`,
-                ephemeral: true
+                ephemeral: true,
             };
         } catch (error) {
             return await buildError(interaction, error);

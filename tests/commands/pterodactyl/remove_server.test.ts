@@ -57,9 +57,7 @@ describe('remove_server command', () => {
 
     describe('execute function', () => {
         it('should successfully remove a server', async () => {
-            const result = await removeServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await removeServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockDeleteServer).toHaveBeenCalledWith('test-user-123', 'Test Server');
             expect(result).toEqual({
@@ -71,9 +69,7 @@ describe('remove_server command', () => {
         it('should trim server name before removing', async () => {
             (mockInteraction.options!.getString as jest.Mock).mockReturnValue('  Test Server  ');
 
-            await removeServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await removeServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockDeleteServer).toHaveBeenCalledWith('test-user-123', 'Test Server');
         });
@@ -89,9 +85,7 @@ describe('remove_server command', () => {
                 ephemeral: true,
             });
 
-            const result = await removeServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await removeServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
             if (!('content' in result)) {
@@ -101,9 +95,7 @@ describe('remove_server command', () => {
         });
 
         it('should use the injected database', async () => {
-            await removeServerExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await removeServerExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockDeleteServer).toHaveBeenCalledWith('test-user-123', 'Test Server');
         });

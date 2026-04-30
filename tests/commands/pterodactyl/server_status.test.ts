@@ -178,7 +178,7 @@ describe('server_status command', () => {
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('no registered servers')
+                    message: expect.stringContaining('no registered servers'),
                 })
             );
         });
@@ -191,7 +191,7 @@ describe('server_status command', () => {
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('no registered servers')
+                    message: expect.stringContaining('no registered servers'),
                 })
             );
         });
@@ -245,7 +245,7 @@ describe('server_status command', () => {
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringMatching(/multiple.*servers/)
+                    message: expect.stringMatching(/multiple.*servers/),
                 })
             );
         });
@@ -267,7 +267,7 @@ describe('server_status command', () => {
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('No server found')
+                    message: expect.stringContaining('No server found'),
                 })
             );
         });
@@ -828,7 +828,7 @@ describe('server_status command', () => {
             expect(mockBuildError).toHaveBeenCalledWith(
                 mockInteraction,
                 expect.objectContaining({
-                    message: expect.stringContaining('Network response was not ok')
+                    message: expect.stringContaining('Network response was not ok'),
                 })
             );
         });
@@ -975,13 +975,15 @@ describe('server_status command', () => {
         });
 
         it('should handle refreshStatus when dbServer is null', async () => {
-            mockGetServerById.mockReturnValueOnce({
-                id: 1,
-                userId: 'test-user-123',
-                serverName: 'Test Server',
-                serverUrl: testServerUrl,
-                apiKey: 'test-api-key',
-            }).mockReturnValueOnce(null);
+            mockGetServerById
+                .mockReturnValueOnce({
+                    id: 1,
+                    userId: 'test-user-123',
+                    serverName: 'Test Server',
+                    serverUrl: testServerUrl,
+                    apiKey: 'test-api-key',
+                })
+                .mockReturnValueOnce(null);
 
             server.use(
                 http.post(`${testServerUrl}/api/client/servers/:identifier/power`, () => {
@@ -1227,15 +1229,17 @@ describe('server_status command', () => {
         });
 
         it('should handle refreshStatus error in catch block', async () => {
-            mockGetServerById.mockReturnValueOnce({
-                id: 1,
-                userId: 'test-user-123',
-                serverName: 'Test Server',
-                serverUrl: testServerUrl,
-                apiKey: testApiKey,
-            }).mockImplementation(() => {
-                throw new Error('Database connection failed');
-            });
+            mockGetServerById
+                .mockReturnValueOnce({
+                    id: 1,
+                    userId: 'test-user-123',
+                    serverName: 'Test Server',
+                    serverUrl: testServerUrl,
+                    apiKey: testApiKey,
+                })
+                .mockImplementation(() => {
+                    throw new Error('Database connection failed');
+                });
 
             server.use(
                 http.post(`${testServerUrl}/api/client/servers/:identifier/power`, () => {
@@ -1278,9 +1282,7 @@ describe('server_status command', () => {
 
             await localCallbacks['collect'](mockButtonInteraction);
 
-            expect(loggerSpy).toHaveBeenCalledWith(
-                expect.any(Error)
-            );
+            expect(loggerSpy).toHaveBeenCalledWith(expect.any(Error));
             loggerSpy.mockRestore();
         });
 
@@ -1430,7 +1432,8 @@ describe('server_status command', () => {
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
                 deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<any>>()
+                followUp: jest
+                    .fn<() => Promise<any>>()
                     .mockResolvedValueOnce(undefined)
                     .mockRejectedValueOnce(new Error('followUp failed')),
                 editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
@@ -1566,7 +1569,9 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<Message<boolean>>>().mockResolvedValue(undefined as unknown as Message<boolean>),
+                edit: jest
+                    .fn<() => Promise<Message<boolean>>>()
+                    .mockResolvedValue(undefined as unknown as Message<boolean>),
             } as unknown as Message;
 
             setupCollector(mockInteraction, testMockMessage);
