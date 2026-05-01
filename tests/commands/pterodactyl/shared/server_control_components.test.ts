@@ -4,7 +4,10 @@ import {
     buildServerControlComponents,
     disableAllComponents,
 } from '../../../../src/commands/pterodactyl/shared/server_control_components.js';
-import type { PterodactylServer, ServerResources } from '../../../../src/commands/pterodactyl/shared/pterodactyl_api.js';
+import type {
+    PterodactylServer,
+    ServerResources,
+} from '../../../../src/commands/pterodactyl/shared/pterodactyl_api.js';
 
 describe('serverControlComponents', () => {
     describe('buildServerControlComponents', () => {
@@ -75,7 +78,7 @@ describe('serverControlComponents', () => {
 
             const rows = buildServerControlComponents(servers, resources, dbServerId);
 
-            rows.forEach(row => {
+            rows.forEach((row) => {
                 const component = row.components[0];
                 if (!('custom_id' in component.data)) {
                     fail('Expected custom_id in component data');
@@ -146,11 +149,7 @@ describe('serverControlComponents', () => {
 
         it('should handle mixed server states', () => {
             const servers = [createServer(1), createServer(2), createServer(3)];
-            const resources = [
-                createResources('running'),
-                createResources('offline'),
-                createResources('stopping'),
-            ];
+            const resources = [createResources('running'), createResources('offline'), createResources('stopping')];
             const dbServerId = 1;
 
             const rows = buildServerControlComponents(servers, resources, dbServerId);
@@ -260,19 +259,23 @@ describe('serverControlComponents', () => {
 
         it('should handle mixed component types across rows', () => {
             const mockSelectRow = {
-                components: [{
-                    type: ComponentType.StringSelect,
-                    data: { custom_id: 'select-1' },
-                    toJSON: () => ({ type: ComponentType.StringSelect, custom_id: 'select-1' }),
-                }],
+                components: [
+                    {
+                        type: ComponentType.StringSelect,
+                        data: { custom_id: 'select-1' },
+                        toJSON: () => ({ type: ComponentType.StringSelect, custom_id: 'select-1' }),
+                    },
+                ],
             };
 
             const mockButtonRow = {
-                components: [{
-                    type: ComponentType.Button,
-                    data: { custom_id: 'button-1', style: 4 },
-                    toJSON: () => ({ type: ComponentType.Button, custom_id: 'button-1', style: 4 }),
-                }],
+                components: [
+                    {
+                        type: ComponentType.Button,
+                        data: { custom_id: 'button-1', style: 4 },
+                        toJSON: () => ({ type: ComponentType.Button, custom_id: 'button-1', style: 4 }),
+                    },
+                ],
             };
 
             const result = disableAllComponents([mockSelectRow, mockButtonRow]);

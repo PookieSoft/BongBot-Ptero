@@ -72,9 +72,7 @@ describe('list_servers command', () => {
 
             mockGetServersByUserId.mockReturnValue(mockServers);
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockGetServersByUserId).toHaveBeenCalledWith('test-user-123');
             expect(result).toHaveProperty('embeds');
@@ -94,9 +92,7 @@ describe('list_servers command', () => {
         it('should handle no registered servers', async () => {
             mockGetServersByUserId.mockReturnValue([]);
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockGetServersByUserId).toHaveBeenCalledWith('test-user-123');
             expect(result).toHaveProperty('embeds');
@@ -122,9 +118,7 @@ describe('list_servers command', () => {
 
             mockGetServersByUserId.mockReturnValue(mockServers);
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(result).toHaveProperty('embeds');
             if (!('data' in result.embeds[0])) {
@@ -147,9 +141,7 @@ describe('list_servers command', () => {
                 isError: true,
             });
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockBuildError).toHaveBeenCalledWith(mockInteraction, testError);
             expect((result as any).isError).toBe(true);
@@ -182,9 +174,7 @@ describe('list_servers command', () => {
 
             mockGetServersByUserId.mockReturnValue(mockServers);
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('data' in result.embeds[0])) {
                 fail('Expected embed to have data property');
             }
@@ -197,9 +187,7 @@ describe('list_servers command', () => {
         it('should include timestamp in embed', async () => {
             mockGetServersByUserId.mockReturnValue([]);
 
-            const result = await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            const result = await listServersExecute(mockInteraction as ChatInputCommandInteraction);
             if (!('data' in result.embeds[0])) {
                 fail('Expected embed to have data property');
             }
@@ -214,9 +202,7 @@ describe('list_servers command', () => {
 
             mockGetServersByUserId.mockReturnValue([]);
 
-            await listServersExecute(
-                mockInteraction as ChatInputCommandInteraction
-            );
+            await listServersExecute(mockInteraction as ChatInputCommandInteraction);
 
             expect(mockGetServersByUserId).toHaveBeenCalledWith('different-user-456');
         });

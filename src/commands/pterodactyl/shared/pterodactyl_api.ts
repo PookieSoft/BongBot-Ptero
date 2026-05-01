@@ -9,7 +9,12 @@ export async function fetchServers(caller: Caller, serverUrl: string, apiKey: st
 
 // TODO: [BUGS 3.1] All errors collapse to null — callers can't distinguish network/auth/notfound.
 //   Consider returning a discriminated union (e.g. { status: 'ok', data } | { status: 'error', code, message }).
-export async function fetchServerResources(caller: Caller, identifier: string, serverUrl: string, apiKey: string): Promise<ServerResources | null> {
+export async function fetchServerResources(
+    caller: Caller,
+    identifier: string,
+    serverUrl: string,
+    apiKey: string
+): Promise<ServerResources | null> {
     try {
         await caller.validateServerSSRF(serverUrl);
         const headers = buildHeaders(apiKey);
@@ -19,15 +24,24 @@ export async function fetchServerResources(caller: Caller, identifier: string, s
     }
 }
 
-export async function fetchAllServerResources(caller: Caller, servers: PterodactylServer[], serverUrl: string, apiKey: string): Promise<(ServerResources | null)[]> {
+export async function fetchAllServerResources(
+    caller: Caller,
+    servers: PterodactylServer[],
+    serverUrl: string,
+    apiKey: string
+): Promise<(ServerResources | null)[]> {
     return Promise.all(
-        servers.map((server) =>
-            fetchServerResources(caller, server.attributes.identifier, serverUrl, apiKey)
-        )
+        servers.map((server) => fetchServerResources(caller, server.attributes.identifier, serverUrl, apiKey))
     );
 }
 
-export async function sendServerCommand(caller: Caller,identifier: string, signal: 'start' | 'stop' | 'restart', serverUrl: string, apiKey: string): Promise<boolean> {
+export async function sendServerCommand(
+    caller: Caller,
+    identifier: string,
+    signal: 'start' | 'stop' | 'restart',
+    serverUrl: string,
+    apiKey: string
+): Promise<boolean> {
     try {
         await caller.validateServerSSRF(serverUrl);
         const headers = buildHeaders(apiKey);

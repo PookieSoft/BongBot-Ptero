@@ -6,10 +6,6 @@ import buildCommands from './commands/build_commands.js';
 const GITHUB_REPO_OWNER = 'PookieSoft';
 const GITHUB_REPO_NAME = 'BongBot-Ptero';
 
-
-const bot: ExtendedClient = await startWithFunctions(
-    GITHUB_REPO_OWNER,
-    GITHUB_REPO_NAME,
-    buildCommands,
-    ['setupCollector']
-);
+const bot: ExtendedClient = await startWithFunctions(GITHUB_REPO_OWNER, GITHUB_REPO_NAME, buildCommands, [
+    'setupCollector',
+]);

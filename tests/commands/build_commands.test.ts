@@ -8,7 +8,7 @@ jest.unstable_mockModule('../../src/commands/pterodactyl/master.js', () => ({
 }));
 jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
     commandBuilder: jest.fn((client: ExtendedClient, commands: any[]) => {
-        commands.forEach(cmd => client.commands.set(cmd.data.name, cmd));
+        commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
     }),
 }));
 // Import after mocks are set up

@@ -4,8 +4,8 @@ import Database from '../../helpers/database.js';
 import { fetchServers } from './shared/pterodactyl_api.js';
 
 export default class UpdateServer {
-    private db : Database;
-    private caller : Caller;
+    private db: Database;
+    private caller: Caller;
     constructor(db: Database, caller: Caller) {
         this.db = db;
         this.caller = caller;
@@ -19,7 +19,7 @@ export default class UpdateServer {
 
             // TODO: [BUGS 2.1] O(n) lookup — add a getServerByName(userId, serverName) method to Database
             const existingServers = this.db.getServersByUserId(userId);
-            const existingServer = existingServers.find(s => s.serverName === serverName);
+            const existingServer = existingServers.find((s) => s.serverName === serverName);
 
             if (!existingServer) {
                 throw new Error(`Server "${serverName}" not found for this user.`);
@@ -28,15 +28,22 @@ export default class UpdateServer {
             const updates: { serverUrl?: string; apiKey?: string } = {};
             if (serverUrl) {
                 serverUrl = serverUrl.trim();
-                if (serverUrl.endsWith('/')) { serverUrl = serverUrl.slice(0, -1); }
+                if (serverUrl.endsWith('/')) {
+                    serverUrl = serverUrl.slice(0, -1);
+                }
                 updates.serverUrl = serverUrl;
             }
             if (apiKey) updates.apiKey = apiKey.trim();
 
             const finalUrl = updates.serverUrl || existingServer.serverUrl;
             const finalApiKey = updates.apiKey || existingServer.apiKey;
-            try { await fetchServers(this.caller, finalUrl, finalApiKey); } 
-            catch (error) { throw new Error('Failed to connect to the Pterodactyl panel. Please check the URL and API key are valid.'); }
+            try {
+                await fetchServers(this.caller, finalUrl, finalApiKey);
+            } catch (error) {
+                throw new Error(
+                    'Failed to connect to the Pterodactyl panel. Please check the URL and API key are valid.'
+                );
+            }
 
             this.db.updateServer(userId, serverName, updates);
 
@@ -46,7 +53,7 @@ export default class UpdateServer {
 
             return {
                 content: `Successfully updated **${serverName}**!\nUpdated: ${updatedFields.join(', ')}`,
-                ephemeral: true
+                ephemeral: true,
             };
         } catch (error) {
             return await buildError(interaction, error);

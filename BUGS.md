@@ -3,6 +3,7 @@
 ## 1. Critical Correctness Issues
 
 ### 1.1 Memory Leak in Message Component Collector
+
 **Location**: `server_status.ts`
 **Severity**: HIGH
 
@@ -11,6 +12,7 @@ The `setupCollector` method creates a message component collector but `pollUntil
 **Impact:** Long-lived polling intervals can accumulate in memory, especially if multiple users trigger server status commands with failures.
 
 **Fix:**
+
 - Store interval IDs and clear them in the collector's `end` event handler
 - Use `collector.stop()` when max attempts are reached
 - Explicitly cancel all pending intervals before collector ends
@@ -18,6 +20,7 @@ The `setupCollector` method creates a message component collector but `pollUntil
 ---
 
 ### 1.2 Unawaited Promise in postDeploymentMessage
+
 **Location**: `index.ts`
 **Severity**: HIGH
 
@@ -28,15 +31,17 @@ botMessages?.forEach((message: Message) => message.delete());
 `message.delete()` is async but not awaited. If deletion fails (permission issue, rate limit, message already deleted), errors are silently ignored. This also fires multiple rapid API calls without rate-limit awareness.
 
 **Fix:**
+
 ```typescript
-await Promise.allSettled(botMessages.map(msg =>
-    msg.delete().catch((error) => console.warn(`Failed to delete message: ${error.message}`))
-));
+await Promise.allSettled(
+    botMessages.map((msg) => msg.delete().catch((error) => console.warn(`Failed to delete message: ${error.message}`)))
+);
 ```
 
 ---
 
 ### 1.3 Empty Catch Handler in setupCollector
+
 **Location**: `server_status.ts`
 **Severity**: MEDIUM
 
@@ -47,6 +52,7 @@ await Promise.allSettled(botMessages.map(msg =>
 This silently swallows errors from `componentInteraction.followUp()`, hiding failures such as network errors, rate limits, or expired interaction tokens.
 
 **Fix:** Log the error at minimum:
+
 ```typescript
 .catch((error) => this._logger.error(error as Error));
 ```
@@ -54,13 +60,16 @@ This silently swallows errors from `componentInteraction.followUp()`, hiding fai
 ---
 
 ### 1.4 Race Condition in pollUntilStateChange
+
 **Location**: `server_status.ts`
 **Severity**: HIGH
 
 ```typescript
 const pollInterval = setInterval(async () => {
     const done = await checkStatus();
-    if (done) { clearInterval(pollInterval); }
+    if (done) {
+        clearInterval(pollInterval);
+    }
 }, interval);
 ```
 
@@ -69,6 +78,7 @@ The method returns immediately after setting up the interval with no awaiting or
 **Impact:** Unbounded polling, excessive API calls to Pterodactyl, memory leak.
 
 **Fix:**
+
 ```typescript
 private pollUntilStateChange(...): Promise<void> {
     return new Promise((resolve) => {
@@ -91,12 +101,13 @@ private pollUntilStateChange(...): Promise<void> {
 ## 2. Performance Bottlenecks
 
 ### 2.1 Inefficient Server Lookup by Name
+
 **Location**: `update_server.ts`
 **Severity**: MEDIUM
 
 ```typescript
 const existingServers = this.db.getServersByUserId(userId);
-const existingServer = existingServers.find(s => s.serverName === serverName);
+const existingServer = existingServers.find((s) => s.serverName === serverName);
 ```
 
 Fetches all servers for a user to check if one specific name exists — O(n) DB read + O(n) in-memory scan instead of a targeted query.
@@ -106,6 +117,7 @@ Fetches all servers for a user to check if one specific name exists — O(n) DB 
 ---
 
 ### 2.2 Synchronous Crypto Operations on Every DB Read
+
 **Location**: `database.ts`
 **Severity**: MEDIUM
 
@@ -116,6 +128,7 @@ Every call to `getServersByUserId()` or `getServerById()` synchronously decrypts
 ---
 
 ### 2.3 Inefficient Message Filtering on Bot Restart
+
 **Location**: `index.ts`
 **Severity**: LOW
 
@@ -126,10 +139,12 @@ The bot fetches the last 100 messages on every `clientReady` event and runs mult
 ---
 
 ### 2.4 No Rate Limiting on Bulk Server Commands
+
 **Location**: `server_status.ts`
 **Severity**: MEDIUM
 
 When stopping all servers, each `sendServerCommand()` fires immediately as a parallel HTTP request:
+
 ```typescript
 const stopPromises = servers.map((server) => sendServerCommand(...));
 await Promise.allSettled(stopPromises);
@@ -144,6 +159,7 @@ No throttling or backoff if Pterodactyl rate-limits the requests.
 ## 3. Type Safety / Async Gaps
 
 ### 3.1 fetchServerResources Returns null for All Errors
+
 **Location**: `pterodactylApi.ts`
 **Severity**: MEDIUM
 
@@ -156,6 +172,7 @@ No throttling or backoff if Pterodactyl rate-limits the requests.
 All failure modes — network errors, SSRF rejection, 401, 404, 500 — collapse to `null`. Callers cannot distinguish between "server offline" and "cannot reach panel".
 
 **Fix:** Return a discriminated union:
+
 ```typescript
 type ApiResult<T> =
     | { status: 'ok'; data: T }
@@ -165,6 +182,7 @@ type ApiResult<T> =
 ---
 
 ### 3.2 Component Interaction Parsing Without Validation
+
 **Location**: `server_status.ts`
 **Severity**: LOW
 
@@ -175,6 +193,7 @@ const [dbServerId, identifier, action] = componentInteraction.values[0].split(':
 No check that `values[0]` exists or that the split produces the expected number of parts. Malformed custom IDs fail silently.
 
 **Fix:**
+
 ```typescript
 const parts = componentInteraction.values[0]?.split(':');
 if (!parts || parts.length !== 3) throw new Error('Invalid component interaction format');
@@ -184,6 +203,7 @@ const [dbServerId, identifier, action] = parts;
 ---
 
 ### 3.3 Unsafe Type Cast After Promise.allSettled
+
 **Location**: `server_status.ts`
 **Severity**: LOW
 
@@ -192,6 +212,7 @@ const value = (result as PromiseFulfilledResult<...>).value;
 ```
 
 Assumes all results are fulfilled. Use a proper type guard instead:
+
 ```typescript
 if (result.status === 'fulfilled') { ... }
 ```
@@ -201,12 +222,14 @@ if (result.status === 'fulfilled') { ... }
 ## 4. Resource Cleanup
 
 ### 4.1 No Graceful Shutdown Handler
+
 **Location**: `databasePool.ts`, `index.ts`
 **Severity**: MEDIUM
 
 No `SIGTERM` / `SIGINT` handlers are registered. When the container stops, better-sqlite3 may not flush WAL writes and active Discord collectors are never cleaned up.
 
 **Fix:**
+
 ```typescript
 process.on('SIGTERM', async () => {
     DatabasePool.getInstance().closeAll();
@@ -218,6 +241,7 @@ process.on('SIGTERM', async () => {
 ---
 
 ### 4.2 Collector Has No Idle Timeout
+
 **Location**: `server_status.ts`
 **Severity**: MEDIUM
 
@@ -228,24 +252,25 @@ const collector = message.createMessageComponentCollector({ time: 600000 });
 A collector always runs for the full 10 minutes even if the user stopped interacting after the first click. This keeps the collector and its closures in memory unnecessarily.
 
 **Fix:** Add an idle timeout:
+
 ```typescript
-message.createMessageComponentCollector({ time: 600000, idle: 300000 })
+message.createMessageComponentCollector({ time: 600000, idle: 300000 });
 ```
 
 ---
 
 ## 5. Summary
 
-| Issue | Severity | Category |
-|-------|----------|----------|
-| `setInterval` not tracked/cleared on error in polling | HIGH | Memory Leak |
-| Unawaited `message.delete()` in postDeploymentMessage | HIGH | Race Condition |
-| Empty `.catch(() => {})` in setupCollector | MEDIUM | Error Handling |
-| `pollUntilStateChange` returns before interval resolves | HIGH | Logic Error |
-| O(n) server lookup by name | MEDIUM | Performance |
-| Synchronous crypto blocking event loop | MEDIUM | Event Loop |
-| All API errors collapse to `null` | MEDIUM | Type Safety |
-| No graceful shutdown handler | MEDIUM | Resource Cleanup |
-| No idle timeout on collector | MEDIUM | Resource Cleanup |
-| Unvalidated component interaction parsing | LOW | Type Safety |
-| Unsafe `PromiseFulfilledResult` cast | LOW | Type Safety |
+| Issue                                                   | Severity | Category         |
+| ------------------------------------------------------- | -------- | ---------------- |
+| `setInterval` not tracked/cleared on error in polling   | HIGH     | Memory Leak      |
+| Unawaited `message.delete()` in postDeploymentMessage   | HIGH     | Race Condition   |
+| Empty `.catch(() => {})` in setupCollector              | MEDIUM   | Error Handling   |
+| `pollUntilStateChange` returns before interval resolves | HIGH     | Logic Error      |
+| O(n) server lookup by name                              | MEDIUM   | Performance      |
+| Synchronous crypto blocking event loop                  | MEDIUM   | Event Loop       |
+| All API errors collapse to `null`                       | MEDIUM   | Type Safety      |
+| No graceful shutdown handler                            | MEDIUM   | Resource Cleanup |
+| No idle timeout on collector                            | MEDIUM   | Resource Cleanup |
+| Unvalidated component interaction parsing               | LOW      | Type Safety      |
+| Unsafe `PromiseFulfilledResult` cast                    | LOW      | Type Safety      |

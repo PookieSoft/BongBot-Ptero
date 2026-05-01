@@ -50,12 +50,7 @@ export default class Database {
             VALUES (?, ?, ?, ?)
         `);
         const encrypted = this.encryptApiKey(server.apiKey);
-        const result = stmt.run(
-            server.userId,
-            server.serverName,
-            server.serverUrl,
-            encrypted,
-        );
+        const result = stmt.run(server.userId, server.serverName, server.serverUrl, encrypted);
         return result.lastInsertRowid as number;
     }
 
@@ -110,20 +105,18 @@ export default class Database {
     }
 
     getServerById(id: number): PterodactylServer | undefined {
-        const stmt = this.db.prepare(
-            'SELECT * FROM pterodactyl_servers WHERE id = ?',
-        );
+        const stmt = this.db.prepare('SELECT * FROM pterodactyl_servers WHERE id = ?');
         let server = stmt.get(id) as PterodactylServer | undefined;
-        if (!server) { return server; }
+        if (!server) {
+            return server;
+        }
         server.apiKey = this.decryptApiKey(server.apiKey);
         return server;
     }
 
     // TODO: [BUGS 2.2] Decrypts all API keys eagerly on every query — consider deferring decryption until the key is needed
     getServersByUserId(userId: string): PterodactylServer[] {
-        const stmt = this.db.prepare(
-            'SELECT * FROM pterodactyl_servers WHERE userId = ?',
-        );
+        const stmt = this.db.prepare('SELECT * FROM pterodactyl_servers WHERE userId = ?');
         let servers = stmt.all(userId) as PterodactylServer[];
         servers = servers.map((server) => {
             server.apiKey = this.decryptApiKey(server.apiKey);

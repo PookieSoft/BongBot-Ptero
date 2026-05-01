@@ -265,6 +265,5 @@ describe('pterodactyl master command', () => {
                 ephemeral: true,
             });
         });
-
     });
 });

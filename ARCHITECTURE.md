@@ -31,49 +31,54 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 ### 1.2 Architectural Layers
 
 #### Presentation Layer (Commands)
+
 - **Master Command** (`master.ts`): Acts as a router for subcommands
-  - Instantiates subcommand handlers with dependency injection
-  - Centralizes allowed hosts configuration
-  - Provides `setupCollector` for interactive components
+    - Instantiates subcommand handlers with dependency injection
+    - Centralizes allowed hosts configuration
+    - Provides `setupCollector` for interactive components
 
 - **Subcommand Handlers** (register_server, list_servers, etc.): Implement command-specific logic
-  - Each is a class with an `execute(interaction, bot)` method
-  - Receives injected dependencies (Database, Caller)
-  - Returns standardized response objects for Discord
+    - Each is a class with an `execute(interaction, bot)` method
+    - Receives injected dependencies (Database, Caller)
+    - Returns standardized response objects for Discord
 
 #### Business Logic Layer (API & Components)
+
 - **PterodactylApi** (`pterodactylApi.ts`): HTTP client wrapper around Caller
-  - `fetchServers()`: Retrieve all servers from a Pterodactyl panel
-  - `fetchServerResources()`: Get resource usage data for a server
-  - `sendServerCommand()`: Execute power commands (start/stop/restart)
+    - `fetchServers()`: Retrieve all servers from a Pterodactyl panel
+    - `fetchServerResources()`: Get resource usage data for a server
+    - `sendServerCommand()`: Execute power commands (start/stop/restart)
 
 - **UI Component Builders** (serverStatusEmbed.ts, serverControlComponents.ts):
-  - Pure functions that construct Discord embeds and interactive components
-  - Format resource data for human-readable display
-  - Build dynamic button/select menus based on server state
+    - Pure functions that construct Discord embeds and interactive components
+    - Format resource data for human-readable display
+    - Build dynamic button/select menus based on server state
 
 #### Data Access Layer (Database)
+
 - **Database** (`database.ts`): SQLite wrapper
-  - Wraps better-sqlite3 for synchronous database operations
-  - Methods: addServer, deleteServer, updateServer, getServerById, getServersByUserId
-  - Encrypts API keys using AES-256-GCM with random IV and auth tag
-  - Parameterized SQL statements
+    - Wraps better-sqlite3 for synchronous database operations
+    - Methods: addServer, deleteServer, updateServer, getServerById, getServersByUserId
+    - Encrypts API keys using AES-256-GCM with random IV and auth tag
+    - Parameterized SQL statements
 
 - **DatabasePool** (`databasePool.ts`): Singleton connection pool
-  - Lazily creates and caches Database instances per dbFileName
-  - Manages lifecycle with `closeAll()` method
-  - Respects `SERVER_DATABASE` env var for test/prod separation
+    - Lazily creates and caches Database instances per dbFileName
+    - Manages lifecycle with `closeAll()` method
+    - Respects `SERVER_DATABASE` env var for test/prod separation
 
 #### Infrastructure Layer (Bot Lifecycle)
+
 - **Index.ts** (Entry point):
-  - Initializes Discord client with Guilds and MessageContent intents
-  - Validates environment variables early (fail-fast pattern)
-  - Registers commands via `buildCommands()`
-  - Handles `interactionCreate` event for slash command routing
-  - Handles `clientReady` event for post-deployment messaging
-  - Manages message cleanup and deployment card generation
+    - Initializes Discord client with Guilds and MessageContent intents
+    - Validates environment variables early (fail-fast pattern)
+    - Registers commands via `buildCommands()`
+    - Handles `interactionCreate` event for slash command routing
+    - Handles `clientReady` event for post-deployment messaging
+    - Manages message cleanup and deployment card generation
 
 ### 1.3 External Dependencies (bongbot-core)
+
 - `Caller`: HTTP client with SSRF protection and allowedHosts configuration
 - `LOGGER`: Logging service with DefaultLogger and FileLogger
 - `buildError`, `buildUnknownError`: Standardized error response formatting
@@ -90,24 +95,24 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 
 1. **User Interaction**: User types `/pterodactyl <subcommand>`
 2. **Index Handler** (`interactionCreate` event):
-   - Validates interaction is a command
-   - Defers reply with loading flag
-   - Retrieves command from `bot.commands` Collection
+    - Validates interaction is a command
+    - Defers reply with loading flag
+    - Retrieves command from `bot.commands` Collection
 3. **Master Command Execute**:
-   - Extracts subcommand name
-   - Instantiates Caller with allowed hosts
-   - Gets database connection from DatabasePool singleton
-   - Routes to appropriate subcommand handler
+    - Extracts subcommand name
+    - Instantiates Caller with allowed hosts
+    - Gets database connection from DatabasePool singleton
+    - Routes to appropriate subcommand handler
 4. **Subcommand Handler**:
-   - Extracts interaction options
-   - Validates input and calls domain logic (API calls, DB operations)
-   - Returns response object with embeds/components/content
+    - Extracts interaction options
+    - Validates input and calls domain logic (API calls, DB operations)
+    - Returns response object with embeds/components/content
 5. **Component Setup** (optional):
-   - If handler has `setupCollector()`, creates message component collector
-   - Handles button/select menu interactions for 10 minutes
+    - If handler has `setupCollector()`, creates message component collector
+    - Handles button/select menu interactions for 10 minutes
 6. **Response Return**:
-   - Index handler follows up with the response
-   - Collector listens for interactive component interactions
+    - Index handler follows up with the response
+    - Collector listens for interactive component interactions
 
 ---
 
@@ -120,6 +125,7 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 **Issue**: `setupCollector` is detected at runtime via `typeof (command as any).setupCollector === 'function'` with no TypeScript interface enforcing the contract.
 
 **Consequences**:
+
 - No compile-time guarantee that collectors follow the same signature
 
 **Severity**: High
@@ -131,11 +137,13 @@ BongBot-Ptero is a Discord.js-based bot built with TypeScript that provides Pter
 **Location**: `server_status.ts`
 
 **Issue**: `ServerStatus` handles three distinct responsibilities:
+
 1. Business logic: validate user servers, fetch data, send commands
 2. State polling: poll API until state changes
 3. UI updates: edit Discord messages with new embeds/components
 
 **Consequences**:
+
 - Difficult to unit test state polling independently from Discord interactions
 - Hard to reuse polling logic in other commands
 - Violates Single Responsibility Principle
@@ -199,17 +207,18 @@ class ComponentIdParser {
 - **HTTP Mocking**: MSW (Mock Service Worker)
 - **Database Mocking**: Jest mocks for better-sqlite3
 - **Test Structure**:
-  - `tests/setup.ts`: Global MSW lifecycle
-  - `tests/mocks/`: Handlers and server definitions
-  - `tests/commands/`: Command-specific tests
-  - `tests/helpers/`: Helper unit tests
-  - `tests/services/`: Service unit tests
+    - `tests/setup.ts`: Global MSW lifecycle
+    - `tests/mocks/`: Handlers and server definitions
+    - `tests/commands/`: Command-specific tests
+    - `tests/helpers/`: Helper unit tests
+    - `tests/services/`: Service unit tests
 
 ---
 
 ## 6. Summary
 
 ### Strengths
+
 1. Clear layering: Presentation → Business Logic → Data Access
 2. Dependency injection: subcommands receive dependencies rather than creating them
 3. Consistent use of `buildError()` for user-facing error responses
@@ -219,10 +228,10 @@ class ComponentIdParser {
 
 ### Improvements by Priority
 
-| Priority | Improvement | Category |
-|----------|-------------|----------|
-| High | Type-safe collector interface | Type Safety |
-| High | Extract polling to PollService | Separation of Concerns |
-| High | Custom ID builder/parser | Type Safety |
-| Low | Typed Pterodactyl API response interfaces | Code Organisation |
-| Low | Async database layer | Performance |
+| Priority | Improvement                               | Category               |
+| -------- | ----------------------------------------- | ---------------------- |
+| High     | Type-safe collector interface             | Type Safety            |
+| High     | Extract polling to PollService            | Separation of Concerns |
+| High     | Custom ID builder/parser                  | Type Safety            |
+| Low      | Typed Pterodactyl API response interfaces | Code Organisation      |
+| Low      | Async database layer                      | Performance            |
