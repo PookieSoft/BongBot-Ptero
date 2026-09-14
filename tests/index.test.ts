@@ -1,8 +1,8 @@
-import { jest, describe, it, expect, beforeAll } from '@jest/globals';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 // Mock pterodactyl master
-jest.unstable_mockModule('../src/commands/pterodactyl/master.js', () => ({
-    default: { data: { name: 'pterodactyl' }, execute: jest.fn() },
+vi.mock('../src/commands/pterodactyl/master.js', () => ({
+    default: { data: { name: 'pterodactyl' }, execute: vi.fn() },
 }));
 
 describe('index.ts', () => {
