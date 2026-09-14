@@ -1,7 +1,11 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@pookiesoft/bongbot-core', () => ({
+const coreMocks = vi.hoisted(() => ({
     startWithFunctions: vi.fn(async () => ({})),
+}));
+
+vi.mock('@pookiesoft/bongbot-core', () => ({
+    startWithFunctions: coreMocks.startWithFunctions,
     buildError: vi.fn(),
     Caller: vi.fn(),
     LOGGER: { log: vi.fn(), default: { info: vi.fn() } },
@@ -11,16 +15,16 @@ vi.mock('@pookiesoft/bongbot-core', () => ({
 }));
 
 describe('Standalone Bot', () => {
-    let coreMock: any;
-
     beforeAll(async () => {
-        coreMock = await import('@pookiesoft/bongbot-core');
         await import('../src/standalone.js');
-    });
+    }, 30_000);
 
     it('should have called bongbot-core with the correct arguments', () => {
-        expect(coreMock.startWithFunctions).toHaveBeenCalledWith('PookieSoft', 'BongBot-Ptero', expect.any(Function), [
-            'setupCollector',
-        ]);
+        expect(coreMocks.startWithFunctions).toHaveBeenCalledWith(
+            'PookieSoft',
+            'BongBot-Ptero',
+            expect.any(Function),
+            ['setupCollector']
+        );
     });
 });
