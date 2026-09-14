@@ -1,18 +1,16 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-const mockStartWithFunctions = vi.fn(async () => ({}));
+const { mockStartWithFunctions } = vi.hoisted(() => ({
+    mockStartWithFunctions: vi.fn(async () => ({})),
+}));
+
+vi.mock(import('@pookiesoft/bongbot-core'), async (importOriginal) => ({
+    ...(await importOriginal()),
+    startWithFunctions: mockStartWithFunctions,
+}));
 
 describe('Standalone Bot', () => {
     beforeAll(async () => {
-        vi.doMock('@pookiesoft/bongbot-core', () => ({
-            startWithFunctions: mockStartWithFunctions,
-            buildError: vi.fn(),
-            Caller: vi.fn(),
-            LOGGER: { log: vi.fn(), default: { info: vi.fn() } },
-            commandBuilder: vi.fn((client: any, commands: any[]) => {
-                commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
-            }),
-        }));
         await import('../src/standalone.js');
     }, 30_000);
 
