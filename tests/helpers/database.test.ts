@@ -24,11 +24,13 @@ const mockGet = vi.fn();
 const mockAll = vi.fn();
 const mockClose = vi.fn();
 
-const mockDatabase = vi.fn().mockImplementation(() => ({
-    exec: mockExec,
-    prepare: mockPrepare,
-    close: mockClose,
-}));
+const mockDatabase = vi.fn().mockImplementation(function MockDatabase() {
+    return {
+        exec: mockExec,
+        prepare: mockPrepare,
+        close: mockClose,
+    };
+});
 
 vi.mock('better-sqlite3', () => ({
     default: mockDatabase,
