@@ -14,7 +14,9 @@ const mockDb = {
     close: vi.fn(),
 };
 vi.mock('better-sqlite3', () => ({
-    default: vi.fn(() => mockDb),
+    default: vi.fn(function MockDatabase() {
+        return mockDb;
+    }),
 }));
 
 // Expose the sqlite mocks to tests so we can assert the logger wrote to the DB
