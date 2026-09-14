@@ -1,11 +1,11 @@
-import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
-    startWithFunctions: jest.fn(async () => ({})),
-    buildError: jest.fn(),
-    Caller: jest.fn(),
-    LOGGER: { log: jest.fn(), default: { info: jest.fn() } },
-    commandBuilder: jest.fn((client: any, commands: any[]) => {
+vi.mock('@pookiesoft/bongbot-core', () => ({
+    startWithFunctions: vi.fn(async () => ({})),
+    buildError: vi.fn(),
+    Caller: vi.fn(),
+    LOGGER: { log: vi.fn(), default: { info: vi.fn() } },
+    commandBuilder: vi.fn((client: any, commands: any[]) => {
         commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
     }),
 }));
