@@ -1,10 +1,10 @@
-import { jest } from '@jest/globals';
+import { vi, type Mock } from 'vitest';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
 import { createMockInteraction, createMockClient } from '../../utils/command_test_utils.js';
 
 // Mock Database
-const mockDeleteServer = jest.fn();
-const mockDbClose = jest.fn();
+const mockDeleteServer = vi.fn();
+const mockDbClose = vi.fn();
 
 const mockDb = {
     deleteServer: mockDeleteServer,
@@ -12,9 +12,9 @@ const mockDb = {
 };
 
 // Mock @pookiesoft/bongbot-core
-const mockBuildError = jest.fn();
+const mockBuildError = vi.fn();
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+vi.mock('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
 }));
 
@@ -30,12 +30,12 @@ describe('remove_server command', () => {
     let mockClient: Partial<Client>;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockInteraction = createMockInteraction({
             commandName: 'remove_server',
             options: {
-                getString: jest.fn((name: string, _required?: boolean) => {
+                getString: vi.fn((name: string, _required?: boolean) => {
                     if (name === 'server_name') return 'Test Server';
                     return null;
                 }),
@@ -67,7 +67,7 @@ describe('remove_server command', () => {
         });
 
         it('should trim server name before removing', async () => {
-            (mockInteraction.options!.getString as jest.Mock).mockReturnValue('  Test Server  ');
+            (mockInteraction.options!.getString as Mock).mockReturnValue('  Test Server  ');
 
             await removeServerExecute(mockInteraction as ChatInputCommandInteraction);
 
