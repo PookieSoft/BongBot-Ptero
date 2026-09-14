@@ -1,13 +1,13 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { Collection } from 'discord.js';
 import type { ExtendedClient } from '@pookiesoft/bongbot-core';
 
 // Mock the pterodactyl master command to avoid pulling in @pookiesoft/bongbot-core transitively
-jest.unstable_mockModule('../../src/commands/pterodactyl/master.js', () => ({
+vi.mock('../../src/commands/pterodactyl/master.js', () => ({
     default: { data: { name: 'pterodactyl', toJSON: () => ({ name: 'pterodactyl' }) } },
 }));
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
-    commandBuilder: jest.fn((client: ExtendedClient, commands: any[]) => {
+vi.mock('@pookiesoft/bongbot-core', () => ({
+    commandBuilder: vi.fn((client: ExtendedClient, commands: any[]) => {
         commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
     }),
 }));
