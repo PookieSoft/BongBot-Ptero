@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
 interface MockInteractionOptions {
     commandName?: string;
@@ -8,23 +8,23 @@ interface MockInteractionOptions {
 const createMockInteraction = (options: MockInteractionOptions = {}) => {
     const defaults = {
         options: {
-            getString: jest.fn(),
-            getInteger: jest.fn(),
-            getUser: jest.fn(),
-            getSubcommand: jest.fn(),
+            getString: vi.fn(),
+            getInteger: vi.fn(),
+            getUser: vi.fn(),
+            getSubcommand: vi.fn(),
         },
         guild: {
             id: 'test_guild_id',
             members: {
                 cache: new Map(),
-                fetch: jest.fn(),
+                fetch: vi.fn(),
             },
         },
         user: {
             id: 'test_user_id',
             username: 'testuser',
         },
-        reply: jest.fn(),
+        reply: vi.fn(),
         commandName: options.commandName || 'test',
     };
 
@@ -34,7 +34,7 @@ const createMockInteraction = (options: MockInteractionOptions = {}) => {
 const createMockClient = (options = {}) => {
     const defaults = {
         user: {
-            displayAvatarURL: jest.fn(() => 'http://example.com/bot_avatar.jpg'),
+            displayAvatarURL: vi.fn(() => 'http://example.com/bot_avatar.jpg'),
         },
         commands: new Map(),
     };
