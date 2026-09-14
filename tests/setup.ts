@@ -1,20 +1,20 @@
 import { server } from './mocks/server.js';
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
-jest.mock('fs', () => ({
-    readFileSync: jest.fn(),
+vi.mock('fs', () => ({
+    readFileSync: vi.fn(),
 }));
 
-// Global test mock for better-sqlite3 to avoid loading native bindings in Jest
-const mockRun = jest.fn();
-const mockPrepare = jest.fn(() => ({ run: mockRun }));
+// Global test mock for better-sqlite3 to avoid loading native bindings in tests
+const mockRun = vi.fn();
+const mockPrepare = vi.fn(() => ({ run: mockRun }));
 const mockDb = {
     prepare: mockPrepare,
-    exec: jest.fn(),
-    close: jest.fn(),
+    exec: vi.fn(),
+    close: vi.fn(),
 };
-jest.unstable_mockModule('better-sqlite3', () => ({
-    default: jest.fn(() => mockDb),
+vi.mock('better-sqlite3', () => ({
+    default: vi.fn(() => mockDb),
 }));
 
 // Expose the sqlite mocks to tests so we can assert the logger wrote to the DB
