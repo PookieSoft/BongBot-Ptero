@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
@@ -18,20 +18,20 @@ const handlers = [
 const server = setupServer(...handlers);
 
 // Mock Database
-const mockAddServer = jest.fn();
-const mockDbClose = jest.fn();
+const mockAddServer = vi.fn();
+const mockDbClose = vi.fn();
 
 const mockDb = {
     addServer: mockAddServer,
-    getServerById: jest.fn(),
-    getServersByUserId: jest.fn(),
+    getServerById: vi.fn(),
+    getServersByUserId: vi.fn(),
     close: mockDbClose,
 };
 
 // Mock @pookiesoft/bongbot-core
-const mockBuildError = jest.fn();
+const mockBuildError = vi.fn();
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+vi.mock('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
         constructor() {}
@@ -75,7 +75,7 @@ describe('register_server command', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         const baseInteraction = createMockInteraction({
             commandName: 'register_server',
@@ -88,7 +88,7 @@ describe('register_server command', () => {
                 id: 'test-user-123',
             },
             options: {
-                getString: jest.fn((key: string, _required?: boolean) => {
+                getString: vi.fn((key: string, _required?: boolean) => {
                     const options: { [key: string]: string } = {
                         server_url: 'https://panel.example.com',
                         api_key: 'test-api-key-123',
@@ -128,7 +128,7 @@ describe('register_server command', () => {
         });
 
         it('should remove trailing slash from server URL', async () => {
-            const getString = jest.fn((key: string, _required?: boolean) => {
+            const getString = vi.fn((key: string, _required?: boolean) => {
                 const options: { [key: string]: string } = {
                     server_url: 'https://panel.example.com/',
                     api_key: 'test-api-key',
@@ -203,7 +203,7 @@ describe('register_server command', () => {
                 })
             );
 
-            const getString = jest.fn((key: string, _required?: boolean) => {
+            const getString = vi.fn((key: string, _required?: boolean) => {
                 const map: { [key: string]: string } = {
                     server_url: 'https://custom-panel.com',
                     api_key: 'custom-key-xyz',
@@ -247,7 +247,7 @@ describe('register_server command', () => {
         });
 
         it('should reject empty server name', async () => {
-            const getString = jest.fn((key: string, _required?: boolean) => {
+            const getString = vi.fn((key: string, _required?: boolean) => {
                 const options: { [key: string]: string } = {
                     server_url: 'https://panel.example.com',
                     api_key: 'test-api-key',
@@ -270,7 +270,7 @@ describe('register_server command', () => {
         });
 
         it('should reject empty string server name', async () => {
-            const getString = jest.fn((key: string, _required?: boolean) => {
+            const getString = vi.fn((key: string, _required?: boolean) => {
                 const options: { [key: string]: string | null } = {
                     server_url: 'https://panel.example.com',
                     api_key: 'test-api-key',
