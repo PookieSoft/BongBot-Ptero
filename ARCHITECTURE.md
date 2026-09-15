@@ -203,9 +203,9 @@ class ComponentIdParser {
 
 ## 5. Testing Architecture
 
-- **Framework**: Jest with ESM support via ts-jest
+- **Framework**: Vitest with native ESM and TypeScript support
 - **HTTP Mocking**: MSW (Mock Service Worker)
-- **Database Mocking**: Jest mocks for better-sqlite3
+- **Database Mocking**: Vitest mocks for better-sqlite3
 - **Test Structure**:
     - `tests/setup.ts`: Global MSW lifecycle
     - `tests/mocks/`: Handlers and server definitions
