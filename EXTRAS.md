@@ -11,9 +11,9 @@
 
 ### 1.2 Testing Infrastructure
 
-- **Comprehensive Jest setup** with ESM + TypeScript support via `ts-jest`.
+- **Vitest setup** with native ESM and TypeScript support.
 - **MSW for HTTP mocking**: Clean separation of HTTP concerns; handlers are isolated per test file.
-- **Coverage tracking**: Jest configured with LCOV output; CI/CD uploads to Codecov with per-PR coverage reports.
+- **Coverage tracking**: Vitest writes LCOV and JSON summaries for per-PR coverage reports.
 - **Test utilities**: `commandTestUtils.ts` provides reusable mock interaction and client builders.
 
 ### 1.3 Security Foundations
