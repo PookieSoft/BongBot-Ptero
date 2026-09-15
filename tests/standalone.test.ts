@@ -4,9 +4,12 @@ const { mockStartWithFunctions } = vi.hoisted(() => ({
     mockStartWithFunctions: vi.fn(async () => ({})),
 }));
 
-vi.mock(import('@pookiesoft/bongbot-core'), async (importOriginal) => ({
-    ...(await importOriginal()),
+vi.mock('@pookiesoft/bongbot-core', () => ({
     startWithFunctions: mockStartWithFunctions,
+}));
+
+vi.mock('../src/commands/build_commands.js', () => ({
+    default: vi.fn(),
 }));
 
 describe('Standalone Bot', () => {
