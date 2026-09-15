@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi, type Mock } from 'vitest';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
@@ -22,9 +22,9 @@ const handlers = [
 const server = setupServer(...handlers);
 
 // Mock Database
-const mockUpdateServer = jest.fn();
-const mockGetServersByUserId = jest.fn();
-const mockDbClose = jest.fn();
+const mockUpdateServer = vi.fn();
+const mockGetServersByUserId = vi.fn();
+const mockDbClose = vi.fn();
 
 const mockDb = {
     updateServer: mockUpdateServer,
@@ -33,9 +33,9 @@ const mockDb = {
 };
 
 // Mock @pookiesoft/bongbot-core
-const mockBuildError = jest.fn();
+const mockBuildError = vi.fn();
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+vi.mock('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
         constructor() {}
@@ -79,12 +79,12 @@ describe('update_server command', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockInteraction = createMockInteraction({
             commandName: 'update_server',
             options: {
-                getString: jest.fn((name: string, _required?: boolean) => {
+                getString: vi.fn((name: string, _required?: boolean) => {
                     if (name === 'server_name') return 'Test Server';
                     if (name === 'server_url') return testServerUrl;
                     if (name === 'api_key') return null;
@@ -131,7 +131,7 @@ describe('update_server command', () => {
         });
 
         it('should update API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+            (mockInteraction.options!.getString as Mock<(name: string) => string | null>).mockImplementation(
                 (name: string) => {
                     if (name === 'server_name') return 'Test Server';
                     if (name === 'server_url') return null;
@@ -151,7 +151,7 @@ describe('update_server command', () => {
         });
 
         it('should update both URL and API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+            (mockInteraction.options!.getString as Mock<(name: string) => string | null>).mockImplementation(
                 (name: string) => {
                     if (name === 'server_name') return 'Test Server';
                     if (name === 'server_url') return testServerUrl;
@@ -173,7 +173,7 @@ describe('update_server command', () => {
         });
 
         it('should trim server name, URL, and API key', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+            (mockInteraction.options!.getString as Mock<(name: string) => string | null>).mockImplementation(
                 (name: string) => {
                     if (name === 'server_name') return '  Test Server  ';
                     if (name === 'server_url') return `  ${testServerUrl}  `;
@@ -191,7 +191,7 @@ describe('update_server command', () => {
         });
 
         it('should handle error when no fields provided', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+            (mockInteraction.options!.getString as Mock<(name: string) => string | null>).mockImplementation(
                 (name: string) => {
                     if (name === 'server_name') return 'Test Server';
                     return null;
@@ -274,7 +274,7 @@ describe('update_server command', () => {
         });
 
         it('should remove trailing slash from server URL', async () => {
-            (mockInteraction.options!.getString as jest.Mock<(name: string) => string | null>).mockImplementation(
+            (mockInteraction.options!.getString as Mock<(name: string) => string | null>).mockImplementation(
                 (name: string) => {
                     if (name === 'server_name') return 'Test Server';
                     if (name === 'server_url') return `${testServerUrl}/`;
