@@ -16,7 +16,7 @@
         "noImplicitReturns": false,
         "noFallthroughCasesInSwitch": true,
         "rootDir": "./src",
-        "types": ["jest", "node"]
+        "types": ["node"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]
