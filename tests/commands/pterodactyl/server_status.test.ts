@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { createMockInteraction } from '../../utils/command_test_utils.js';
 
 // Set allowed hosts for SSRF bypass
@@ -12,9 +12,9 @@ const testServerUrl = 'https://panel.example.com';
 const testApiKey = 'test-api-key';
 
 const mockLogger = {
-    info: jest.fn(),
-    debug: jest.fn(),
-    error: jest.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
 } as any;
 
 const handlers = [
@@ -52,21 +52,21 @@ const handlers = [
 const server = setupServer(...handlers);
 
 // Mock Database
-const mockGetServersByUserId = jest.fn();
-const mockGetServerById = jest.fn();
-const mockDbClose = jest.fn();
+const mockGetServersByUserId = vi.fn();
+const mockGetServerById = vi.fn();
+const mockDbClose = vi.fn();
 
 const mockDb = {
     getServersByUserId: mockGetServersByUserId,
     getServerById: mockGetServerById,
     close: mockDbClose,
-    addServer: jest.fn(),
+    addServer: vi.fn(),
 };
 
 // Mock @pookiesoft/bongbot-core
-const mockBuildError = jest.fn<() => Promise<any>>();
+const mockBuildError = vi.fn<() => Promise<any>>();
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+vi.mock('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
     Caller: class MockCaller {
         constructor(public allowedHosts: string[] = []) {}
@@ -96,7 +96,7 @@ let setupCollector: ServerStatus['setupCollector'];
 
 // The action now resolves only when polling finishes, so tests must run the clock past the deadline.
 async function finishAction(action: Promise<void>): Promise<void> {
-    await jest.advanceTimersByTimeAsync(61000);
+    await vi.advanceTimersByTimeAsync(61000);
     await action;
 }
 
@@ -105,31 +105,31 @@ describe('server_status command', () => {
 
     beforeAll(() => {
         server.listen({ onUnhandledRequest: 'bypass' });
-        jest.useFakeTimers();
+        vi.useFakeTimers();
     });
 
     afterAll(() => {
         server.close();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     afterEach(() => {
         server.resetHandlers(...handlers);
-        jest.clearAllTimers();
-        jest.restoreAllMocks();
+        vi.clearAllTimers();
+        vi.restoreAllMocks();
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // One manager per test, so no test inherits another's servers.
         const instance = new ServerStatus(mockDb as any, caller as any, mockLogger, new StateManager());
         serverStatusExecute = instance.execute.bind(instance);
         setupCollector = instance.setupCollector.bind(instance);
 
-        jest.spyOn(console, 'error').mockImplementation(() => {});
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
-        jest.spyOn(console, 'log').mockImplementation(() => {});
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+        vi.spyOn(console, 'log').mockImplementation(() => {});
 
         const baseInteraction = createMockInteraction({
             commandName: 'server_status',
@@ -142,8 +142,8 @@ describe('server_status command', () => {
                 id: 'test-user-123',
             },
             options: {
-                getString: jest.fn((_key: string) => null),
-                getSubcommand: jest.fn(() => 'manage'),
+                getString: vi.fn((_key: string) => null),
+                getSubcommand: vi.fn(() => 'manage'),
             },
         };
 
@@ -472,8 +472,8 @@ describe('server_status command', () => {
         beforeEach(() => {
             collectorCallbacks = {};
             mockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         collectorCallbacks[event] = callback;
                     }),
                 }),
@@ -487,7 +487,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
         });
 
@@ -496,9 +496,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: `server_control:1:server-123:${action}`,
-                deferUpdate: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
-                editReply: jest.fn<(options: any) => Promise<void>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+                editReply: vi.fn<(options: any) => Promise<void>>().mockResolvedValue(undefined),
             };
         }
 
@@ -507,7 +507,7 @@ describe('server_status command', () => {
         function serveObservations(observations: { state: string | null; uptime?: number }[]) {
             let index = 0;
             const originalGet = caller.get.bind(caller);
-            jest.spyOn(caller, 'get').mockImplementation(async (...args: any[]) => {
+            vi.spyOn(caller, 'get').mockImplementation(async (...args: any[]) => {
                 if (!String(args[1]).endsWith('/resources')) return originalGet(...(args as [any, any, any, any]));
                 const observation = observations[Math.min(index++, observations.length - 1)];
                 if (observation.state === null) throw new Error('Panel unavailable');
@@ -647,7 +647,7 @@ describe('server_status command', () => {
             await finishAction(collectorCallbacks['collect'](component));
 
             expect(renderedStates(component).at(-1)?.description).toContain('Stopped watching after 60 seconds');
-            expect(jest.getTimerCount()).toBe(0);
+            expect(vi.getTimerCount()).toBe(0);
         });
 
         it('re-enables controls only once the action is finished', async () => {
@@ -725,7 +725,7 @@ describe('server_status command', () => {
 
             const mockComponentInteraction = {
                 user: { id: 'different-user' },
-                reply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                reply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockComponentInteraction));
@@ -743,9 +743,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -761,9 +761,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => true,
                 values: ['1:server-123:start'],
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockSelectInteraction));
@@ -783,9 +783,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:restart',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockInteraction2));
@@ -804,9 +804,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:all:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -848,9 +848,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:all:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -876,9 +876,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:all:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -904,9 +904,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -927,9 +927,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:999:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -952,9 +952,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
@@ -977,15 +977,15 @@ describe('server_status command', () => {
         });
 
         it('should handle message.edit rejection on collector end', async () => {
-            const loggerSpy = jest.spyOn(mockLogger, 'error').mockImplementation(() => {});
+            const loggerSpy = vi.spyOn(mockLogger, 'error').mockImplementation(() => {});
             const editError = new Error('Failed to edit');
-            mockMessage.edit = jest.fn<() => Promise<any>>().mockRejectedValue(editError);
+            mockMessage.edit = vi.fn<() => Promise<any>>().mockRejectedValue(editError);
 
             await openPanel(mockMessage);
 
             collectorCallbacks['end']();
 
-            await jest.runAllTimersAsync();
+            await vi.runAllTimersAsync();
 
             expect(loggerSpy).toHaveBeenCalledWith(editError, mockInteraction);
             loggerSpy.mockRestore();
@@ -1002,8 +1002,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1025,7 +1025,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1034,9 +1034,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1093,8 +1093,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1108,7 +1108,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1117,9 +1117,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1179,8 +1179,8 @@ describe('server_status command', () => {
         it('should handle StringSelectMenu when disabling components', async () => {
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1202,9 +1202,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1221,8 +1221,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1236,7 +1236,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1245,9 +1245,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1296,8 +1296,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1319,16 +1319,16 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             const collectPromise = localCallbacks['collect'](mockButtonInteraction);
 
-            await jest.advanceTimersByTimeAsync(500);
-            await jest.advanceTimersByTimeAsync(500);
-            await jest.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
 
             await collectPromise;
 
@@ -1354,8 +1354,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1369,7 +1369,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1378,15 +1378,15 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             const collectPromise = localCallbacks['collect'](mockButtonInteraction);
 
             for (let i = 0; i < 125; i++) {
-                await jest.advanceTimersByTimeAsync(500);
+                await vi.advanceTimersByTimeAsync(500);
             }
 
             await collectPromise;
@@ -1418,8 +1418,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1433,7 +1433,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1442,16 +1442,16 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             const collectPromise = localCallbacks['collect'](mockButtonInteraction);
 
-            await jest.advanceTimersByTimeAsync(500);
-            await jest.advanceTimersByTimeAsync(500);
-            await jest.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
 
             await collectPromise;
 
@@ -1459,12 +1459,12 @@ describe('server_status command', () => {
         });
 
         it('should handle refreshStatus error in catch block', async () => {
-            const loggerSpy = jest.spyOn(mockLogger, 'error').mockImplementation(() => {});
+            const loggerSpy = vi.spyOn(mockLogger, 'error').mockImplementation(() => {});
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1478,7 +1478,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1497,9 +1497,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1512,20 +1512,20 @@ describe('server_status command', () => {
             const nonManageInteraction = {
                 ...mockInteraction,
                 options: {
-                    getString: jest.fn((_key: string) => null),
-                    getSubcommand: jest.fn(() => 'list'),
+                    getString: vi.fn((_key: string) => null),
+                    getSubcommand: vi.fn(() => 'list'),
                 },
             };
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
                 components: [],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             setupCollector(nonManageInteraction, testMockMessage);
@@ -1540,8 +1540,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1555,7 +1555,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1564,12 +1564,12 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
                 followUp: jest
                     .fn<() => Promise<any>>()
                     .mockResolvedValueOnce(undefined)
                     .mockRejectedValueOnce(new Error('followUp failed')),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await expect(finishAction(localCallbacks['collect'](mockButtonInteraction))).resolves.not.toThrow();
@@ -1582,13 +1582,13 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
                 components: [],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1597,9 +1597,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => true,
                 values: [':server-123:stop'],
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockSelectInteraction));
@@ -1630,8 +1630,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1645,7 +1645,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                edit: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             } as unknown as Message;
 
             await openPanel(testMockMessage);
@@ -1654,9 +1654,9 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:restart',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
@@ -1683,8 +1683,8 @@ describe('server_status command', () => {
 
             const localCallbacks: any = {};
             const testMockMessage = {
-                createMessageComponentCollector: jest.fn().mockReturnValue({
-                    on: jest.fn((event: string, callback: any) => {
+                createMessageComponentCollector: vi.fn().mockReturnValue({
+                    on: vi.fn((event: string, callback: any) => {
                         localCallbacks[event] = callback;
                     }),
                 }),
@@ -1709,14 +1709,14 @@ describe('server_status command', () => {
                 user: { id: 'test-user-123' },
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:stop',
-                deferUpdate: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                editReply: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                followUp: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+                editReply: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
             };
 
             const collectPromise = localCallbacks['collect'](mockButtonInteraction);
 
-            await jest.advanceTimersByTimeAsync(500);
+            await vi.advanceTimersByTimeAsync(500);
 
             await collectPromise;
 
