@@ -1565,7 +1565,7 @@ describe('server_status command', () => {
                 isStringSelectMenu: () => false,
                 customId: 'server_control:1:server-123:start',
                 deferUpdate: vi.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
-                followUp: jest
+                followUp: vi
                     .fn<() => Promise<any>>()
                     .mockResolvedValueOnce(undefined)
                     .mockRejectedValueOnce(new Error('followUp failed')),
@@ -1698,7 +1698,7 @@ describe('server_status command', () => {
                         ],
                     },
                 ],
-                edit: jest
+                edit: vi
                     .fn<() => Promise<Message<boolean>>>()
                     .mockResolvedValue(undefined as unknown as Message<boolean>),
             } as unknown as Message;
