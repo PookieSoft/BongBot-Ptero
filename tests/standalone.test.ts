@@ -1,12 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
+import { startWithFunctions } from '@pookiesoft/bongbot-core';
 import '../src/standalone.js';
 
-const { mockStartWithFunctions } = vi.hoisted(() => ({
-    mockStartWithFunctions: vi.fn(async () => ({})),
-}));
-
 vi.mock('@pookiesoft/bongbot-core', () => ({
-    startWithFunctions: mockStartWithFunctions,
+    startWithFunctions: vi.fn(async () => ({})),
 }));
 
 vi.mock('../src/commands/build_commands.js', () => ({
@@ -15,7 +12,7 @@ vi.mock('../src/commands/build_commands.js', () => ({
 
 describe('Standalone Bot', () => {
     it('should have called bongbot-core with the correct arguments', () => {
-        expect(mockStartWithFunctions).toHaveBeenCalledWith(
+        expect(startWithFunctions).toHaveBeenCalledWith(
             'PookieSoft',
             'BongBot-Ptero',
             expect.any(Function),
