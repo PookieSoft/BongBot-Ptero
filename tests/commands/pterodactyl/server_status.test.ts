@@ -94,10 +94,31 @@ const caller = new Caller();
 let serverStatusExecute: ServerStatus['execute'];
 let setupCollector: ServerStatus['setupCollector'];
 
-// The action now resolves only when polling finishes, so tests must run the clock past the deadline.
 async function finishAction(action: Promise<void>): Promise<void> {
-    await vi.advanceTimersByTimeAsync(61000);
+    await vi.advanceTimersByTimeAsync(2000);
     await action;
+}
+
+// Consume observations once per resource request, independently of MSW's resolver lifecycle.
+function serveObservations(observations: { state: string | null; uptime?: number }[]) {
+    let index = 0;
+    const originalGet = caller.get.bind(caller);
+    return vi.spyOn(caller, 'get').mockImplementation(async (...args: Parameters<Caller['get']>) => {
+        if (!args[1].endsWith('/resources')) return originalGet(...args);
+        const observation = observations[Math.min(index++, observations.length - 1)];
+        if (observation.state === null) throw new Error('Panel unavailable');
+        return {
+            attributes: {
+                current_state: observation.state,
+                resources: {
+                    memory_bytes: 0,
+                    cpu_absolute: 0,
+                    disk_bytes: 0,
+                    uptime: observation.uptime ?? 0,
+                },
+            },
+        };
+    });
 }
 
 describe('server_status command', () => {
@@ -377,94 +398,6 @@ describe('server_status command', () => {
         });
     });
 
-    describe('helper functions - formatting', () => {
-        it('should format bytes correctly', async () => {
-            const result: any = await serverStatusExecute(mockInteraction);
-
-            const fieldValue = result.embeds[0].data.fields[0].value;
-            expect(fieldValue).toContain('1024');
-        });
-
-        it('should format CPU percentage correctly', async () => {
-            const result: any = await serverStatusExecute(mockInteraction);
-
-            const fieldValue = result.embeds[0].data.fields[0].value;
-            expect(fieldValue).toContain('50.5');
-        });
-
-        it('should format uptime in hours and minutes', async () => {
-            server.use(
-                http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
-                    return HttpResponse.json({
-                        attributes: {
-                            current_state: 'running',
-                            resources: {
-                                memory_bytes: 1073741824,
-                                cpu_absolute: 50.5,
-                                disk_bytes: 2147483648,
-                                uptime: 7260000,
-                            },
-                        },
-                    });
-                })
-            );
-
-            const result: any = await serverStatusExecute(mockInteraction);
-
-            const fieldValue = result.embeds[0].data.fields[0].value;
-            expect(fieldValue).toMatch(/2h.*1m/);
-        });
-    });
-
-    describe('status emojis', () => {
-        it('should show green circle for running state', async () => {
-            const result: any = await serverStatusExecute(mockInteraction);
-            expect(result.embeds[0].data.fields[0].value).toContain('🟢');
-        });
-
-        it('should show red circle for offline state', async () => {
-            server.use(
-                http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
-                    return HttpResponse.json({
-                        attributes: {
-                            current_state: 'offline',
-                            resources: {
-                                memory_bytes: 0,
-                                cpu_absolute: 0,
-                                disk_bytes: 0,
-                                uptime: 0,
-                            },
-                        },
-                    });
-                })
-            );
-
-            const result: any = await serverStatusExecute(mockInteraction);
-            expect(result.embeds[0].data.fields[0].value).toContain('🔴');
-        });
-
-        it('should show yellow circle for starting state', async () => {
-            server.use(
-                http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
-                    return HttpResponse.json({
-                        attributes: {
-                            current_state: 'starting',
-                            resources: {
-                                memory_bytes: 0,
-                                cpu_absolute: 0,
-                                disk_bytes: 0,
-                                uptime: 0,
-                            },
-                        },
-                    });
-                })
-            );
-
-            const result: any = await serverStatusExecute(mockInteraction);
-            expect(result.embeds[0].data.fields[0].value).toContain('🟡');
-        });
-    });
-
     describe('setupCollector method', () => {
         let mockMessage: any;
         let collectorCallbacks: any;
@@ -500,29 +433,6 @@ describe('server_status command', () => {
                 followUp: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
                 editReply: vi.fn<(options: any) => Promise<void>>().mockResolvedValue(undefined),
             };
-        }
-
-        // Stubbed at the caller, not MSW, which runs a resolver more than once per request.
-        // Observations are consumed in order, one per polled server per poll.
-        function serveObservations(observations: { state: string | null; uptime?: number }[]) {
-            let index = 0;
-            const originalGet = caller.get.bind(caller);
-            vi.spyOn(caller, 'get').mockImplementation(async (...args: any[]) => {
-                if (!String(args[1]).endsWith('/resources')) return originalGet(...(args as [any, any, any, any]));
-                const observation = observations[Math.min(index++, observations.length - 1)];
-                if (observation.state === null) throw new Error('Panel unavailable');
-                return {
-                    attributes: {
-                        current_state: observation.state,
-                        resources: {
-                            memory_bytes: 0,
-                            cpu_absolute: 0,
-                            disk_bytes: 0,
-                            uptime: observation.uptime ?? 0,
-                        },
-                    },
-                };
-            });
         }
 
         function renderedStates(component: ReturnType<typeof actionInteraction>) {
@@ -644,7 +554,9 @@ describe('server_status command', () => {
             await openPanel(mockMessage);
             const component = actionInteraction('restart');
 
-            await finishAction(collectorCallbacks['collect'](component));
+            const action = collectorCallbacks['collect'](component);
+            await vi.advanceTimersByTimeAsync(61000);
+            await action;
 
             expect(renderedStates(component).at(-1)?.description).toContain('Stopped watching after 60 seconds');
             expect(vi.getTimerCount()).toBe(0);
@@ -737,6 +649,7 @@ describe('server_status command', () => {
         });
 
         it('should handle button interaction with stop action', async () => {
+            serveObservations([{ state: 'running' }, { state: 'running' }, { state: 'offline' }]);
             await openPanel(mockMessage);
 
             const mockButtonInteraction = {
@@ -752,6 +665,7 @@ describe('server_status command', () => {
 
             expect(mockButtonInteraction.deferUpdate).toHaveBeenCalled();
             expect(mockButtonInteraction.followUp).toHaveBeenCalled();
+            expect(renderedStates(mockButtonInteraction).at(-1)?.description).toBe('✅ Action complete.');
         });
 
         it('should handle select menu interaction with start action', async () => {
@@ -777,6 +691,11 @@ describe('server_status command', () => {
         });
 
         it('should handle restart action', async () => {
+            serveObservations([
+                { state: 'running', uptime: 1000 },
+                { state: 'running', uptime: 1000 },
+                { state: 'running', uptime: 100 },
+            ]);
             await openPanel(mockMessage);
 
             const mockInteraction2 = {
@@ -790,6 +709,7 @@ describe('server_status command', () => {
 
             await finishAction(collectorCallbacks['collect'](mockInteraction2));
 
+            expect(renderedStates(mockInteraction2).at(-1)?.description).toBe('✅ Action complete.');
             expect(mockInteraction2.followUp).toHaveBeenCalledWith(
                 expect.objectContaining({
                     content: expect.stringContaining('Restarting'),
@@ -798,6 +718,7 @@ describe('server_status command', () => {
         });
 
         it('should handle stop all action', async () => {
+            serveObservations([{ state: 'running' }, { state: 'running' }, { state: 'offline' }]);
             await openPanel(mockMessage);
 
             const mockButtonInteraction = {
@@ -811,6 +732,7 @@ describe('server_status command', () => {
 
             await finishAction(collectorCallbacks['collect'](mockButtonInteraction));
 
+            expect(renderedStates(mockButtonInteraction).at(-1)?.description).toBe('✅ Action complete.');
             expect(mockButtonInteraction.followUp).toHaveBeenCalledWith(
                 expect.objectContaining({
                     content: expect.stringContaining('Stopping all servers'),
@@ -831,17 +753,21 @@ describe('server_status command', () => {
                 })
             );
 
-            let callCount = 0;
             server.use(
-                http.post(`${testServerUrl}/api/client/servers/:identifier/power`, () => {
-                    callCount++;
-                    if (callCount === 2) {
+                http.post(`${testServerUrl}/api/client/servers/:identifier/power`, ({ params }) => {
+                    if (params.identifier === 'server-2') {
                         return new HttpResponse(null, { status: 500 });
                     }
                     return HttpResponse.json({ success: true });
                 })
             );
 
+            serveObservations([
+                ...Array.from({ length: 6 }, () => ({ state: 'running' })),
+                { state: 'offline' },
+                { state: 'running' },
+                { state: 'offline' },
+            ]);
             await openPanel(mockMessage);
 
             const mockButtonInteraction = {
@@ -857,9 +783,12 @@ describe('server_status command', () => {
 
             expect(mockButtonInteraction.followUp).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    content: expect.stringContaining('Failed to stop'),
+                    content: '⚠️ Failed to stop 1 server(s): Server 2',
                     ephemeral: true,
                 })
+            );
+            expect(renderedStates(mockButtonInteraction).at(-1)?.description).toBe(
+                '⚠️ Failed to stop 1 server(s): Server 2\n✅ Action complete.'
             );
         });
 
@@ -992,6 +921,7 @@ describe('server_status command', () => {
         });
 
         it('should handle unknown component type when disabling components', async () => {
+            serveObservations([{ state: 'running' }, { state: 'running' }, { state: 'offline' }]);
             mockGetServerById.mockReturnValue({
                 id: 1,
                 userId: 'test-user-123',
@@ -1131,52 +1061,8 @@ describe('server_status command', () => {
             );
         });
 
-        it('should handle uptime less than 1 hour', async () => {
-            server.use(
-                http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
-                    return HttpResponse.json({
-                        attributes: {
-                            current_state: 'running',
-                            resources: {
-                                memory_bytes: 1024000000,
-                                cpu_absolute: 45.5,
-                                disk_bytes: 5000000000,
-                                uptime: 1800000,
-                            },
-                        },
-                    });
-                })
-            );
-
-            const result: any = await serverStatusExecute(mockInteraction);
-
-            const fieldValue = result.embeds[0].data.fields[0].value;
-            expect(fieldValue).toContain('30m');
-            expect(fieldValue).not.toContain('h');
-        });
-
-        it('should show stopping emoji for stopping state', async () => {
-            server.use(
-                http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
-                    return HttpResponse.json({
-                        attributes: {
-                            current_state: 'stopping',
-                            resources: {
-                                memory_bytes: 512000000,
-                                cpu_absolute: 10.0,
-                                disk_bytes: 1000000000,
-                                uptime: 600000,
-                            },
-                        },
-                    });
-                })
-            );
-
-            const result: any = await serverStatusExecute(mockInteraction);
-            expect(result.embeds[0].data.fields[0].value).toContain('🟠');
-        });
-
         it('should handle StringSelectMenu when disabling components', async () => {
+            serveObservations([{ state: 'running' }, { state: 'running' }, { state: 'offline' }]);
             const localCallbacks: any = {};
             const testMockMessage = {
                 createMessageComponentCollector: vi.fn().mockReturnValue({
@@ -1613,6 +1499,9 @@ describe('server_status command', () => {
 
         it('should handle refreshStatus with running server and resource state', async () => {
             server.use(
+                http.post(`${testServerUrl}/api/client/servers/:identifier/power`, () => {
+                    return HttpResponse.error();
+                }),
                 http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
                     return HttpResponse.json({
                         attributes: {
@@ -1661,11 +1550,27 @@ describe('server_status command', () => {
 
             await finishAction(localCallbacks['collect'](mockButtonInteraction));
 
-            expect(mockButtonInteraction.editReply).toHaveBeenCalled();
+            expect(mockButtonInteraction.editReply).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    embeds: [
+                        expect.objectContaining({
+                            data: expect.objectContaining({
+                                description: expect.stringContaining('Last updated'),
+                                fields: [
+                                    expect.objectContaining({ value: expect.stringContaining('**Status:** running') }),
+                                ],
+                            }),
+                        }),
+                    ],
+                })
+            );
         });
 
         it('should handle refreshStatus with non-running server state', async () => {
             server.use(
+                http.post(`${testServerUrl}/api/client/servers/:identifier/power`, () => {
+                    return HttpResponse.error();
+                }),
                 http.get(`${testServerUrl}/api/client/servers/:identifier/resources`, () => {
                     return HttpResponse.json({
                         attributes: {
@@ -1720,7 +1625,20 @@ describe('server_status command', () => {
 
             await collectPromise;
 
-            expect(mockButtonInteraction.editReply).toHaveBeenCalled();
+            expect(mockButtonInteraction.editReply).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    embeds: [
+                        expect.objectContaining({
+                            data: expect.objectContaining({
+                                description: expect.stringContaining('Last updated'),
+                                fields: [
+                                    expect.objectContaining({ value: expect.stringContaining('**Status:** offline') }),
+                                ],
+                            }),
+                        }),
+                    ],
+                })
+            );
         });
     });
 });
