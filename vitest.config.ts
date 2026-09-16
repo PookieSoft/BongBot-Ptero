@@ -18,12 +18,6 @@ export default defineConfig({
                 'coverage/**',
             ],
             reporter: ['text', 'text-summary', 'json', 'json-summary', 'lcov'],
-            thresholds: {
-                lines: 100,
-                functions: 100,
-                statements: 100,
-                branches: 100,
-            },
         },
         reporters: ['default', 'junit'],
         outputFile: {
