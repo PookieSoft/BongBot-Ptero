@@ -5,11 +5,6 @@ export default defineConfig({
         environment: 'node',
         globals: true,
         setupFiles: ['./tests/setup.ts'],
-        server: {
-            deps: {
-                inline: ['@pookiesoft/bongbot-core'],
-            },
-        },
         coverage: {
             provider: 'v8',
             include: ['src/**/*.{js,ts}'],
