@@ -1,22 +1,22 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import type { ChatInputCommandInteraction, Client } from 'discord.js';
 import { createMockInteraction, createMockClient } from '../../utils/command_test_utils.js';
 
 // Mock Database
-const mockGetServersByUserId = jest.fn();
-const mockDbClose = jest.fn();
+const mockGetServersByUserId = vi.fn();
+const mockDbClose = vi.fn();
 
 const mockDb = {
-    addServer: jest.fn(),
-    getServerById: jest.fn(),
+    addServer: vi.fn(),
+    getServerById: vi.fn(),
     getServersByUserId: mockGetServersByUserId,
     close: mockDbClose,
 };
 
 // Mock @pookiesoft/bongbot-core
-const mockBuildError = jest.fn();
+const mockBuildError = vi.fn();
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
+vi.mock('@pookiesoft/bongbot-core', () => ({
     buildError: mockBuildError,
 }));
 
@@ -32,7 +32,7 @@ describe('list_servers command', () => {
     let mockClient: Partial<Client>;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockInteraction = createMockInteraction({
             commandName: 'list_servers',

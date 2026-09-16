@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -17,20 +17,22 @@ function encryptApiKey(plaintext: string): string {
 }
 
 // Mock better-sqlite3
-const mockExec = jest.fn();
-const mockPrepare = jest.fn();
-const mockRun = jest.fn();
-const mockGet = jest.fn();
-const mockAll = jest.fn();
-const mockClose = jest.fn();
+const mockExec = vi.fn();
+const mockPrepare = vi.fn();
+const mockRun = vi.fn();
+const mockGet = vi.fn();
+const mockAll = vi.fn();
+const mockClose = vi.fn();
 
-const mockDatabase = jest.fn().mockImplementation(() => ({
-    exec: mockExec,
-    prepare: mockPrepare,
-    close: mockClose,
-}));
+const mockDatabase = vi.fn().mockImplementation(function MockDatabase() {
+    return {
+        exec: mockExec,
+        prepare: mockPrepare,
+        close: mockClose,
+    };
+});
 
-jest.unstable_mockModule('better-sqlite3', () => ({
+vi.mock('better-sqlite3', () => ({
     default: mockDatabase,
 }));
 
@@ -42,7 +44,7 @@ describe('Database class', () => {
     const testDbPath = 'test-pterodactyl.db';
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Setup prepare to return chainable methods
         mockPrepare.mockReturnValue({
@@ -84,7 +86,7 @@ describe('Database class', () => {
     describe('addServer', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should successfully add a new server', () => {
@@ -144,7 +146,7 @@ describe('Database class', () => {
     describe('getServerById', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should return a server by id with decrypted API key', () => {
@@ -182,7 +184,7 @@ describe('Database class', () => {
     describe('getServersByUserId', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should return all servers for a user with decrypted API keys', () => {
@@ -229,7 +231,7 @@ describe('Database class', () => {
     describe('updateServer', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should update server URL', () => {
@@ -295,7 +297,7 @@ describe('Database class', () => {
     describe('deleteServer', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should successfully delete a server', () => {
@@ -316,7 +318,7 @@ describe('Database class', () => {
     describe('close', () => {
         it('should close the database connection', () => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             db.close();
 
@@ -327,7 +329,7 @@ describe('Database class', () => {
     describe('decryption error handling', () => {
         beforeEach(() => {
             db = new Database(testDbPath);
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should throw error for invalid ciphertext format (only 2 parts)', () => {

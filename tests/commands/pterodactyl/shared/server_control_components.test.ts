@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals';
 import { ComponentType } from 'discord.js';
 import {
     buildServerControlComponents,

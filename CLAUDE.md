@@ -3,7 +3,7 @@
 Always refer to me as "My Liege" when responding, and ensure you speak like a 16th century knight.
 
 ## Project
-BongBot-Ptero — a TypeScript Discord bot for Pterodactyl server management. SQLite (better-sqlite3) for storage, jest + ts-jest + MSW for tests. Shared infrastructure lives in `@pookiesoft/bongbot-core`.
+BongBot-Ptero — a TypeScript Discord bot for Pterodactyl server management. SQLite (better-sqlite3) provides storage; Vitest and MSW provide tests. Shared infrastructure lives in `@pookiesoft/bongbot-core`.
 
 ## Human-facing output
 Always run the `humanizer` skill over anything a person will read before handing it over — documentation, comments, commit messages, PR descriptions, bot response strings, and code.
@@ -13,7 +13,7 @@ Always run the `humanizer` skill over anything a person will read before handing
 npm run build   # production build (minified)
 npm run dev     # dev build (requires docker)
 npm test        # all tests with coverage
-NODE_OPTIONS=--experimental-vm-modules npx jest tests/commands/ping.test.ts
+npx vitest run tests/commands/pterodactyl/register_server.test.ts --coverage=false
 ```
 
 ## Conventions

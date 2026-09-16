@@ -1,17 +1,19 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
 // Mock Database
-const mockClose = jest.fn();
-const MockDatabase = jest.fn().mockImplementation(() => ({
-    close: mockClose,
-    getServersByUserId: jest.fn(),
-    getServerById: jest.fn(),
-    addServer: jest.fn(),
-    updateServer: jest.fn(),
-    deleteServer: jest.fn(),
-}));
+const mockClose = vi.fn();
+const MockDatabase = vi.fn().mockImplementation(function MockDatabase() {
+    return {
+        close: mockClose,
+        getServersByUserId: vi.fn(),
+        getServerById: vi.fn(),
+        addServer: vi.fn(),
+        updateServer: vi.fn(),
+        deleteServer: vi.fn(),
+    };
+});
 
-jest.unstable_mockModule('../../src/helpers/database.js', () => ({
+vi.mock('../../src/helpers/database.js', () => ({
     default: MockDatabase,
 }));
 
@@ -20,7 +22,7 @@ const { default: DatabasePool } = await import('../../src/services/database_pool
 
 describe('DatabasePool', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         // Reset the singleton between tests
         // @ts-ignore - accessing private field for testing
         DatabasePool['instance'] = undefined;

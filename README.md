@@ -125,14 +125,11 @@ If you used AI to write any part of it, read [AI Contributions](CONTRIBUTING.md#
 
 ## Testing
 
-The bot includes comprehensive test coverage using Jest:
+The bot uses Vitest with coverage enabled by default:
 
 ```bash
-# Run all tests
+# Run all tests with coverage
 npm test
-
-# Run tests with coverage report
-npm test -- --coverage
 
 # Run specific test file
 npm test -- tests/commands/pterodactyl/register_server.test.ts

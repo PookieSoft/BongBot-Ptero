@@ -221,6 +221,22 @@ describe('StateManager', () => {
             expect(manager.currentStates([server])).toEqual([STATES.running]);
         });
 
+        it('preserves the reading and tracked action when a repeated baseline read fails', () => {
+            const baseline = resources(STATES.running, 1000);
+            manager.attachState(server, baseline);
+            manager.trackState(server.attributes.identifier, 'restart');
+
+            manager.attachState(server, null);
+
+            expect(manager.managedServers()).toEqual([server]);
+            expect(manager.currentStates([server])).toEqual([STATES.running]);
+            expect(manager.currentResources([server])).toEqual([baseline]);
+            expect(manager.allComplete()).toBe(false);
+
+            manager.observeAll([server], [resources(STATES.running, 100)]);
+            expect(manager.allComplete()).toBe(true);
+        });
+
         it("names one server or all of them as an action's targets", () => {
             manager.attachState(server, resources(STATES.running, 1000));
             manager.attachState(other, resources(STATES.offline));
@@ -235,6 +251,15 @@ describe('StateManager', () => {
             manager.attachState(other, null);
 
             expect(manager.currentResources()).toEqual([resources(STATES.running, 1000), null]);
+        });
+
+        it('returns requested readings in order with null for missing readings or unknown servers', () => {
+            const baseline = resources(STATES.running, 1000);
+            manager.attachState(server, baseline);
+            manager.attachState(other, null);
+
+            expect(manager.currentResources([other, gone, server])).toEqual([null, null, baseline]);
+            expect(manager.currentResources([])).toEqual([]);
         });
 
         it('reads an empty status for a server it does not hold', () => {

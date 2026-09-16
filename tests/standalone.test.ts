@@ -1,25 +1,19 @@
-import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, expect, it, vi } from 'vitest';
+import { startWithFunctions } from '@pookiesoft/bongbot-core';
 
-jest.unstable_mockModule('@pookiesoft/bongbot-core', () => ({
-    startWithFunctions: jest.fn(async () => ({})),
-    buildError: jest.fn(),
-    Caller: jest.fn(),
-    LOGGER: { log: jest.fn(), default: { info: jest.fn() } },
-    commandBuilder: jest.fn((client: any, commands: any[]) => {
-        commands.forEach((cmd) => client.commands.set(cmd.data.name, cmd));
-    }),
+vi.mock('@pookiesoft/bongbot-core', () => ({
+    startWithFunctions: vi.fn(async () => ({})),
+}));
+
+vi.mock('../src/commands/build_commands.js', () => ({
+    default: vi.fn(),
 }));
 
 describe('Standalone Bot', () => {
-    let coreMock: any;
-
-    beforeAll(async () => {
-        coreMock = await import('@pookiesoft/bongbot-core');
+    it('should have called bongbot-core with the correct arguments', async () => {
         await import('../src/standalone.js');
-    });
 
-    it('should have called bongbot-core with the correct arguments', () => {
-        expect(coreMock.startWithFunctions).toHaveBeenCalledWith('PookieSoft', 'BongBot-Ptero', expect.any(Function), [
+        expect(startWithFunctions).toHaveBeenCalledWith('PookieSoft', 'BongBot-Ptero', expect.any(Function), [
             'setupCollector',
         ]);
     });
