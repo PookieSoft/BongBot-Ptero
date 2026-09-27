@@ -90,7 +90,22 @@
     "pkg": "zlib1g"
   },
   {
+    "id": "CVE-2026-8674",
+    "severity": "MEDIUM",
+    "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-86805",
+    "severity": "MEDIUM",
+    "pkg": "libc6"
+  },
+  {
     "id": "CVE-2026-89092",
+    "severity": "MEDIUM",
+    "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-95818",
     "severity": "MEDIUM",
     "pkg": "libc6"
   }
