@@ -35,6 +35,11 @@
     "pkg": "libc6"
   },
   {
+    "id": "CVE-2026-102010",
+    "severity": "MEDIUM",
+    "pkg": "gcc-14-base"
+  },
+  {
     "id": "CVE-2026-18374",
     "severity": "MEDIUM",
     "pkg": "libc6"
@@ -55,9 +60,39 @@
     "pkg": "zlib1g"
   },
   {
+    "id": "CVE-2026-35189",
+    "severity": "LOW",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-35191",
+    "severity": "LOW",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-42772",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
     "id": "CVE-2026-5435",
     "severity": "MEDIUM",
     "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-54872",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-54873",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-54875",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
   },
   {
     "id": "CVE-2026-6238",
@@ -75,14 +110,49 @@
     "pkg": "libc6"
   },
   {
+    "id": "CVE-2026-72897",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-75804",
+    "severity": "HIGH",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-75805",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-75806",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
     "id": "CVE-2026-77117",
     "severity": "MEDIUM",
     "pkg": "libc6"
   },
   {
+    "id": "CVE-2026-77696",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
+  },
+  {
     "id": "CVE-2026-80489",
     "severity": "MEDIUM",
     "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-84782",
+    "severity": "HIGH",
+    "pkg": "libssl3t64"
+  },
+  {
+    "id": "CVE-2026-84784",
+    "severity": "MEDIUM",
+    "pkg": "libssl3t64"
   },
   {
     "id": "CVE-2026-85091",
@@ -105,8 +175,18 @@
     "pkg": "libc6"
   },
   {
+    "id": "CVE-2026-95619",
+    "severity": "MEDIUM",
+    "pkg": "gcc-14-base"
+  },
+  {
     "id": "CVE-2026-95818",
     "severity": "MEDIUM",
+    "pkg": "libc6"
+  },
+  {
+    "id": "CVE-2026-97399",
+    "severity": "LOW",
     "pkg": "libc6"
   }
 ]
