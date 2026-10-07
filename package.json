@@ -35,7 +35,7 @@
         "better-sqlite3": "^13.0.3",
         "discord.js": "^14.26.3",
         "esbuild": "^0.28.0",
-        "msw": "^2.14.2",
+        "msw": "^3.0.2",
         "prettier": "^3.8.3",
         "ts-node": "^10.9.2",
         "typescript": "^7.0.2",
